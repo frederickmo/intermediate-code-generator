@@ -13,14 +13,16 @@
 using std::stack;
 using std::string;
 
-struct Symbol {
+class Symbol {
+public:
     string name;
     string val{"0"};
+    string valString; // 这个属性是生成三地址代码用的
     int PLACE{};
     int trueExit{};
     int falseExit{};
 
-    Symbol newTemp();
+    static Symbol generateNewTempVar();
 };
 
 struct Quadruple {
@@ -42,7 +44,7 @@ vector<Symbol> symbolTable;
 map<string, int> entry;
 int tempVariableCount = 0;
 
-Symbol Symbol::newTemp() {
+Symbol Symbol::generateNewTempVar() {
     tempVariableCount++;
     return Symbol{"T"+std::to_string(tempVariableCount)};
 }
@@ -98,10 +100,31 @@ void QuadrupleTranslator::checkError(int pos) {
     }
 }
 
+static void printStateStack(const stack<int>& stateStack) {
+    cout << "状态栈 ";
+    stack<int> copy = stateStack;
+    while(!copy.empty()) {
+        cout << copy.top() << " ";
+        copy.pop();
+    }
+    cout << endl;
+}
+
+static void printSymbolStack(const stack<Symbol>& symbolStack) {
+    cout << "符号栈 ";
+    stack<Symbol> copy = symbolStack;
+    while(!copy.empty()) {
+        cout << copy.top().name << " ";
+        copy.pop();
+    }
+    cout << endl;
+}
+
 void QuadrupleTranslator::parse() {
     // 初始化状态栈/符号栈/语义栈
     stack<int> stateStack; // 状态栈
     stack<Symbol> symbolStack; // 符号栈
+    stack<Symbol> tempVarStack; // 临时变量栈
     stack<string> semanticStack; // 语义栈
     int inputPointer = 0; // 输入串指针
     stateStack.push(0); // 状态栈初始化：填入0装#
@@ -116,7 +139,7 @@ void QuadrupleTranslator::parse() {
         // 读取输入串的下一个字符
         string symbolToRead = lexicalTable[inputPointer].token;
 
-        // TODO:(这里不是什么未完成的，只是打个tag用思考) 如果这里是关系运算符是不是已经读进去了?就不需要后面if的操作了
+        // TODO:                (这里不是什么未完成的，只是打个tag用思考) 如果这里是关系运算符是不是已经读进去了?就不需要后面if的操作了
 
         /**
          * 语义处理① => 识别字符
@@ -154,15 +177,20 @@ void QuadrupleTranslator::parse() {
 
         // 如果当前符号表位置为0(ERROR)，报错
         if (curSymbolIndex == ERROR) {
+            cout << "【错误】在状态 " << curState << " 发生错误\n";
             checkError(inputPointer);
             exit(0);
         } else if (isShiftTerm(curSymbolIndex)) {
+            cout << "【移进】从状态 " << curState << " 移进状态 " << getShiftStateIndex(curSymbolIndex) << endl;
             // 移进项目 => 直接入栈，转向新状态
             stateStack.push(getShiftStateIndex(curSymbolIndex));
             symbolStack.push(Symbol{symbolToRead});
             // 栈外指针指向下一位
             inputPointer++;
+            printStateStack(stateStack);
+            printSymbolStack(symbolStack);
         } else if (isReduceTerm(curSymbolIndex)) {
+            cout << "【规约】在状态 " << curState << " 使用第 " << getReduceStateIndex(curSymbolIndex) << " 个产生式进行规约\n";
             // 规约项目 => 找到是用哪个串进行规约的
             int whichProductionToReduce = getReduceStateIndex(curSymbolIndex);
             // 被规约的串
@@ -183,6 +211,8 @@ void QuadrupleTranslator::parse() {
                 || production == "<<NEG>>-><<TERM>>"
                 || production == "<<EXPR>>-><<NEG>>") {
                 // 取栈顶串进行归约
+                // CORE:{13,15,23,43}【语义处理】从简单变量i一路归约到表达式expression然后参与计算
+
                 Symbol topSymbol = symbolStack.top();
                 symbolStack.pop();
                 stateStack.pop();
@@ -195,11 +225,15 @@ void QuadrupleTranslator::parse() {
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 symbolStack.top().PLACE = topSymbol.PLACE;
                 symbolStack.top().name = topSymbol.name;
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             } else if (production == "<<ID>>->i") {
                 /**
                  * 语义处理③ => 终结符归约为非终结符类型
                  *
-                 * 由识别用户输入串到非终结符<<ID>>
+                 * CORE:{17}【语义处理】由识别用户输入串到非终结符<<ID>>
                  */
 
                 symbolStack.pop();
@@ -212,8 +246,12 @@ void QuadrupleTranslator::parse() {
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 // 记录为该符号的入口地址
                 symbolStack.top().PLACE = entry[semanticStack.top()];
-                // TODO: 下一句我也没有把握，直接从语义栈里拿第一个词出来代表被归约的用户自定义变量名了。 => 目前来看结果似乎应该是对的。
+                // TODO:            下一句我也没有把握，直接从语义栈里拿第一个词出来代表被归约的用户自定义变量名了。 => 目前来看结果似乎应该是对的。
                 symbolStack.top().name = semanticStack.top();
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             } else if (production == "<<RELOP>>->="
             || production == "<<RELOP>>->!="
             || production == "<<RELOP>>-><"
@@ -221,7 +259,7 @@ void QuadrupleTranslator::parse() {
             || production == "<<RELOP>>->>"
             || production == "<<RELOP>>->>=") {
                 /**
-                 * 读取关系运算符
+                 * CORE:{27,28,29,30,31,32}【语义处理】读取关系运算符
                  */
 
                 symbolStack.pop();
@@ -235,7 +273,10 @@ void QuadrupleTranslator::parse() {
                 // semanicStack存储了变量名和各种终结符,直接读取栈顶的符号名应该就是符号吧?
                 symbolStack.top().name = semanticStack.top();
                 symbolStack.top().val = semanticStack.top();
-
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             } else if (production == "<<BCMP>>-><<EXPR>><<RELOP>><<EXPR>>") {
 
 
@@ -250,7 +291,7 @@ void QuadrupleTranslator::parse() {
 
 
                 /**
-                 * 语义处理④ => 语句 => 布尔表达式
+                 * CORE:{4}     【语义处理】从两个表达式(expr)进行布尔运算归约到布尔类型比较表达式(bool_comparison)
                  */
                  Symbol expression1, expression2, relop;
                  // 符号栈弹出三位，其中top是第二个操作符，top-2是第一个操作符
@@ -281,9 +322,15 @@ void QuadrupleTranslator::parse() {
                  std::sprintf(PLACE2str, "%d", expression2.PLACE);
                 generateIntermediateCode("j" + relop.name, PLACE1str, PLACE2str, 0);
                 generateIntermediateCode("j", "-", "-", 0);
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             } else if (production == "A-><<ID>>:=<<EXPR>>") {
                 /**
                  * 赋值语句: A -> ID := expression
+                 *
+                 * CORE:{1}     【语义处理】赋值语句：A->id:=E
                  */
 
                 Symbol id, expression;
@@ -307,7 +354,13 @@ void QuadrupleTranslator::parse() {
                 // 原版的这里是终结符i, 这里是非终结符<<ID>>,看了下上面的i规约为<<ID>>的步骤，
                 // 感觉这样大概应该也行得通？
                 semanticStack.pop();
+                if (!tempVarStack.empty()) {
+                    tempVarStack.pop();
+                    semanticStack.pop();
+                }
                 id.name = semanticStack.top();
+                // FIXME:      一个不知道为啥的危险举动：如果临时变量栈非空，这里就多pop一次，因为临时变量存储了两个变量相运算的值，而不是语义栈里的值
+
                 semanticStack.pop();
                 // 更新符号的入口地址
                 id.PLACE = entry[id.name];
@@ -317,11 +370,16 @@ void QuadrupleTranslator::parse() {
                 symbolTable[id.PLACE].val = symbolTable[expression.PLACE].val;
 
                 // 产生一句赋值语句
+
                 char *PLACEstr;
                 std::sprintf(PLACEstr, "%d", expression.PLACE);
-                // TODO: 因为实验手册要求的是用三地址代码。。。但是跳转没法三地址代码，所以就 ①赋值用三地址代码 ②跳转四元式 混用吧。
+                // TODO:      因为实验手册要求的是用三地址代码。。。但是跳转没法三地址代码，所以就 ①赋值用三地址代码 ②跳转四元式 混用吧。
                 // generateIntermediateCode(":=", PLACEstr, "-", id.PLACE);
-                generateThreeAddressCode(id.name, expression.name);
+                generateThreeAddressCode(id.name, expression.valString);
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             } else if (production == "S->A"
             || production == "<<STMT>>->S"
             || production == "<<START>>-><<STMT>>") {
@@ -333,6 +391,7 @@ void QuadrupleTranslator::parse() {
                  * => 按照原版的 statement -> { statement }这样规约的。
                  */
 
+                // CORE:{34,40,41}     【语义处理】从赋值语句(assignment)归约到一般语句(statement)再归约到开始符号
                 // 顶部语句
                 Symbol statement = symbolStack.top();
                 symbolStack.pop();
@@ -344,7 +403,69 @@ void QuadrupleTranslator::parse() {
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 一个=赋所有属性
-                symbolStack.top() = statement;
+                // FIXME:           感觉是不是这里有问题啊,S->A规约后符号栈里的S又变成A了?虽然能正常work但是不适合debug用
+//                symbolStack.top() = statement;
+                symbolStack.top().PLACE = statement.PLACE;
+                symbolStack.top().val = statement.val;
+                symbolStack.top().valString = statement.valString;
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "<<EXPR>>-><<EXPR>>+<<TERM>>"
+            || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
+                // CORE:{14,44}     【语义处理】算术运算：从'+'运算归约到表达式(expression) or 从'*"运算归约到表达式
+
+                Symbol expression1, expression2;
+                for (int count = 0; count < 3; ++count) {
+                    if (count == 0)
+                        expression2 = symbolStack.top();
+                    else if (count == 2)
+                        expression1 = symbolStack.top();
+                    symbolStack.pop();
+                    stateStack.pop();
+                }
+
+
+                Symbol tempVar = Symbol::generateNewTempVar();
+                // 临时变量地址放在符号表末尾(索引=符号表长度)
+                tempVar.PLACE = symbolTable.size();
+                tempVar.valString = expression1.name + reduceTerm.rightPart[1] + expression2.name;
+                // FIXME:               在归约的时候直接计算有bug（本身就存在变量没赋值的情况），如果只是生成代码的话也可以不考虑哈。后面回填的时候再计算结果
+//                try {
+//                    int val1 = std::stoi(symbolTable[expression1.PLACE].val);
+//                    int val2 = std::stoi(symbolTable[expression2.PLACE].val);
+//                    if (reduceTerm.rightPart[1] == "+")
+//                        tempVar.val = std::to_string(val1 + val2);
+//                    else if (reduceTerm.rightPart[1] == "*")
+//                        tempVar.val = std::to_string(val1 * val2);
+//                } catch (...) {
+//                    checkError(inputPointer);
+//                    exit(0);
+//                }
+                // 临时变量存入符号表，entry表记录临时变量地址
+                symbolTable.push_back(tempVar);
+                entry[tempVar.name] = tempVar.PLACE;
+                // 临时变量存入临时变量表 => 可能会产生冗余的临时变量，不管了。。
+                tempVarStack.push(tempVar);
+
+                Symbol newLeft = Symbol{reduceTerm.leftPart};
+                // FIXME:               不保证这个地方没有问题，只是对于单个a:=b+c的产生式没问题
+                newLeft.valString = tempVar.name;
+                symbolStack.push(newLeft);
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+
+
+                // 生成三地址代码
+                string expr = expression1.name + " " + reduceTerm.rightPart[1] + " " + expression2.name;
+                generateThreeAddressCode(tempVar.name, expr);
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             }
             /**
              * 还没完。。但是先把结束态写了。

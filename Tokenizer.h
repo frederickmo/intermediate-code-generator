@@ -217,7 +217,7 @@ void Tokenizer::lexicalAnalyze(const string &code) {
     int length = code.length();
     for (int i = 0; i < code.length(); ++i) {
         Word word;
-        cout << "isLetter:" << isLetter(code[i]) << "isDigit:" << isDigit(code[i]) << "isBlank:" << isBlank(code[i]) << endl;
+//        cout << "isLetter:" << isLetter(code[i]) << "isDigit:" << isDigit(code[i]) << "isBlank:" << isBlank(code[i]) << endl;
         if (isLetter(code[i]))
             word = wordAnalyze(code.substr(i, code.length() - i + 1));
         else if (isDigit(code[i]))
@@ -230,7 +230,7 @@ void Tokenizer::lexicalAnalyze(const string &code) {
         i += int(word.token.length()) - 1;
         lexicalTable.emplace_back(word);
         ++lexicalTableLength;
-        cout << "(" << word.indexInKeywords << ", " << word.token << ")" << endl;
+//        cout << "(" << word.indexInKeywords << ", " << word.token << ")" << endl;
     }
 }
 

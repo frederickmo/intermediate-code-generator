@@ -91,16 +91,16 @@ public:
 
     // 判断新生成的状态集是否可以和之前的状态集合并，
     // 若可以合并则返回状态集序号，不可合并返回-1
-    int mergeSet() const;
+    static int mergeSet() ;
 
     // 分析第一个产生式，产生第一个状态集I0
-    void generateI0();
+    static void generateI0();
 
     // 计算状态集闭包
-    void calculateClosure(int stateIndex);
+    static void calculateClosure(int stateIndex);
 
     // 计算状态集遇到某符号应该转换到的新状态的序号
-    int GOTO(int stateIndex, string symbol);
+    static int GOTO(int stateIndex, const string& symbol);
 
 
 
@@ -112,18 +112,16 @@ public:
 
     void printStateTable();
 
-    void printStateTableToFile(const string& fileName);
+    static void printStateTableToFile(const string& fileName);
 
     // 这里是用LR(1)分析法构造的状态集
     void generateStateSet(int choice = 0);
 
     // 似乎LALR就是从LR(1)里合并了同心集就完了
     void generateLALRTable();
-
-    void printLALRtableToFile();
 };
 
-int SemanticAnalyzer::mergeSet() const {
+int SemanticAnalyzer::mergeSet() {
     int flag = -1; // 默认不能合并
 
     for (int i = 0; i < globalStateCount - 1; ++i) {
@@ -224,8 +222,9 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
                     newSubsequenceSet.push_back(vn);
             }
             newTerm.subsequence = newSubsequenceSet;
-            if (newTerm.subsequence.empty())
-                std::cerr << "后继符为空！" << endl;
+            // ATTENTION:       这里是后继符为空报错（说起来为空的话不是可以用M->null或者N->null来规约嘛？）
+//            if (newTerm.subsequence.empty())
+//                std::cerr << "后继符为空！" << endl;
 
             int newTermFlag = -1;
             // 如果和已有项目的左部/右部/•位置都相同，就合并
@@ -258,7 +257,7 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
     }
 }
 
-int SemanticAnalyzer::GOTO(int stateIndex, string symbol) {
+int SemanticAnalyzer::GOTO(int stateIndex, const string& symbol) {
     int stateSize = stateSet[stateIndex].size();
     for (int i = 0; i < stateSize; ++i) {
         vector<string> rightPart = stateSet[stateIndex][i].rightPart;
@@ -437,8 +436,9 @@ void SemanticAnalyzer::generateStateSet(int choice) {
         }
 
         int nextState = GOTO(curState, symbolStack.front());
-        cout << "I" << curState << "--" << symbolStack.front()
-            << "-->" << "I" << nextState;
+        // ATTENTION:       标记：这里是打印了goto表内部的状态转移情况,所以注释掉
+//        cout << "I" << curState << "--" << symbolStack.front()
+//            << "-->" << "I" << nextState;
 
         // 填充ACTION表移进项目
         if (VtToIndex.count(symbolStack.front()) != 0) {
@@ -472,9 +472,9 @@ void SemanticAnalyzer::generateStateSet(int choice) {
 
     }
 
-    printStateSet();
-    printStateTable();
-    printStateTableToFile("LR1_state_table.csv");
+//    printStateSet();
+//    printStateTable();
+//    printStateTableToFile("LR1_state_table.csv");
 }
 
 void SemanticAnalyzer::generateLALRTable() {
@@ -576,8 +576,8 @@ void SemanticAnalyzer::generateLALRTable() {
         }
     }
 
-    printStateTable();
-    printStateTableToFile("LALR_state_table.csv");
+//    printStateTable();
+//    printStateTableToFile("LALR_state_table.csv");
 }
 
 void SemanticAnalyzer::printStateTableToFile(const string& fileName) {

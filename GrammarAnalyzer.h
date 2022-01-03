@@ -50,10 +50,10 @@ public:
     static void split(const string& production, string &LHS, vector<string>& RHS);
 
     // 判断从leftIndex到rightIndex之间的符号是否可推导为空字
-    bool allNullable(vector<string> Yset, int leftIndex, int rightIndex);
+    static bool allNullable(vector<string> Yset, int leftIndex, int rightIndex);
 
     // 计算一次所有符号的FIRST集合和FOLLOW集合
-    void calculateFIRSTAndFOLLOWSets();
+    static void calculateFIRSTAndFOLLOWSets();
 
     // 计算得到最终FIRST和FOLLOW集合
     void calculateFinalFIRSTAndFOLLOWSets();
@@ -135,12 +135,13 @@ void GrammarAnalyzer::scanProduction() {
         }
     }
 
-    cout << "非终结符Vn:" << endl;
-    for (const auto& vn : VnToIndex)
-        cout << "索引下标: " << vn.second << "\t名称: " << vn.first << endl;
-    cout << "终结符Vt:" << endl;
-    for (const auto& vt : VtToIndex)
-        cout << "索引下标: " << vt.second << "\t名称: " << vt.first << endl;
+    // ATTENTION：       这里是注释掉的打印非终结符和终结符表的地方
+//    cout << "非终结符Vn:" << endl;
+//    for (const auto& vn : VnToIndex)
+//        cout << "索引下标: " << vn.second << "\t名称: " << vn.first << endl;
+//    cout << "终结符Vt:" << endl;
+//    for (const auto& vt : VtToIndex)
+//        cout << "索引下标: " << vt.second << "\t名称: " << vt.first << endl;
 }
 
 vector<string> GrammarAnalyzer::splitRHSOfProduction(const string& RHSOfProduction) {
@@ -265,7 +266,7 @@ void GrammarAnalyzer::calculateFIRSTAndFOLLOWSets() {
 }
 
 void GrammarAnalyzer::calculateFinalFIRSTAndFOLLOWSets() {
-    // TODO: 预先初始化的set<string>数组我都初始化成vector<set<string>>了，但是未初始化的vector理论上不能用索引取值，不知道这样会怎么样，先写写看好了。
+    // TODO:                预先初始化的set<string>数组我都初始化成vector<set<string>>了，但是未初始化的vector理论上不能用索引取值，不知道这样会怎么样，先写写看好了。
     // => 有问题，已经改掉了。
     set<string> previousFIRST[60];
     set<string> previousFOLLOW[60];
@@ -300,14 +301,15 @@ void GrammarAnalyzer::calculateFinalFIRSTAndFOLLOWSets() {
         || previousFOLLOW[index].size() != FOLLOW[index].size())
             isConverged = false;
 
-        cout << vn.first << " 的FIRST集合: \t";
-        for (const auto& first : FIRST[index])
-            cout << first << " ";
-        cout << endl;
-        cout << vn.first << " 的FOLLOW集合: \t";
-        for (const auto& follow : FOLLOW[index])
-            cout << follow << " ";
-        cout << endl;
+        // ATTENTION：       这里是注释掉的打印FIRST集合和FOLLOW集合
+//        cout << vn.first << " 的FIRST集合: \t";
+//        for (const auto& first : FIRST[index])
+//            cout << first << " ";
+//        cout << endl;
+//        cout << vn.first << " 的FOLLOW集合: \t";
+//        for (const auto& follow : FOLLOW[index])
+//            cout << follow << " ";
+//        cout << endl;
     }
 }
 

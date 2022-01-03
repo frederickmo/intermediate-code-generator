@@ -164,7 +164,7 @@ int main() {
     quadrupleTranslator.parse();
 
     for (const auto& quadruple : quadrupleOrTAC)
-        cout << quadruple;
+        cout << quadruple << endl;
 
 
 

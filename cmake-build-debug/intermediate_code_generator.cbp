@@ -98,9 +98,6 @@
 		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/main.cpp">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/parsingTable.h">
-			<Option target="intermediate_code_generator"/>
-		</Unit>
 		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
