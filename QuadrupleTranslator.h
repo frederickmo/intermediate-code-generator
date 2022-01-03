@@ -163,6 +163,7 @@ void QuadrupleTranslator::parse() {
                     // => 加入符号表，添加入口地址映射
                     tmpSymbol.name = lexicalTable[inputPointer].token;
                     tmpSymbol.val = lexicalTable[inputPointer].token;
+                    tmpSymbol.valString = tmpSymbol.val;
                     tmpSymbol.PLACE = symbolTable.size();
                     symbolTable.push_back(tmpSymbol);
                     entry[tmpSymbol.name] = tmpSymbol.PLACE;
@@ -225,6 +226,8 @@ void QuadrupleTranslator::parse() {
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 symbolStack.top().PLACE = topSymbol.PLACE;
                 symbolStack.top().name = topSymbol.name;
+                // TODO : TAG
+                symbolStack.top().valString = topSymbol.valString;
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -248,6 +251,8 @@ void QuadrupleTranslator::parse() {
                 symbolStack.top().PLACE = entry[semanticStack.top()];
                 // TODO:            下一句我也没有把握，直接从语义栈里拿第一个词出来代表被归约的用户自定义变量名了。 => 目前来看结果似乎应该是对的。
                 symbolStack.top().name = semanticStack.top();
+                // TODO: TO BE CHECKED: i归约为<<ID>>时，ID的valString赋为i的name
+                symbolStack.top().valString = semanticStack.top();
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -273,6 +278,8 @@ void QuadrupleTranslator::parse() {
                 // semanicStack存储了变量名和各种终结符,直接读取栈顶的符号名应该就是符号吧?
                 symbolStack.top().name = semanticStack.top();
                 symbolStack.top().val = semanticStack.top();
+                // TODO : TO BE CHECKED:符号的valString也赋给上层relop
+                symbolStack.top().valString = semanticStack.top();
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -316,10 +323,8 @@ void QuadrupleTranslator::parse() {
                  symbolStack.top().falseExit = nextQuad + 1;
 
                  // 生成两条语句
-                 char *PLACE2str;
-                char *PLACE1str;
-                std::sprintf(PLACE1str, "%d", expression1.PLACE);
-                 std::sprintf(PLACE2str, "%d", expression2.PLACE);
+                string PLACE1str = std::to_string(expression1.PLACE);
+                string PLACE2str = std::to_string(expression2.PLACE);
                 generateIntermediateCode("j" + relop.name, PLACE1str, PLACE2str, 0);
                 generateIntermediateCode("j", "-", "-", 0);
                 // 调试用
@@ -371,11 +376,10 @@ void QuadrupleTranslator::parse() {
 
                 // 产生一句赋值语句
 
-                char *PLACEstr;
-                std::sprintf(PLACEstr, "%d", expression.PLACE);
+                string PLACEstr = std::to_string(expression.PLACE);
                 // TODO:      因为实验手册要求的是用三地址代码。。。但是跳转没法三地址代码，所以就 ①赋值用三地址代码 ②跳转四元式 混用吧。
                 // generateIntermediateCode(":=", PLACEstr, "-", id.PLACE);
-                generateThreeAddressCode(id.name, expression.valString);
+                generateThreeAddressCode(id.valString, expression.valString);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -430,7 +434,8 @@ void QuadrupleTranslator::parse() {
                 Symbol tempVar = Symbol::generateNewTempVar();
                 // 临时变量地址放在符号表末尾(索引=符号表长度)
                 tempVar.PLACE = symbolTable.size();
-                tempVar.valString = expression1.name + reduceTerm.rightPart[1] + expression2.name;
+                // TODO: TO BE CHECKED  这里改了初次的valstring
+                tempVar.valString = expression1.valString + reduceTerm.rightPart[1] + expression2.valString;
                 // FIXME:               在归约的时候直接计算有bug（本身就存在变量没赋值的情况），如果只是生成代码的话也可以不考虑哈。后面回填的时候再计算结果
 //                try {
 //                    int val1 = std::stoi(symbolTable[expression1.PLACE].val);
@@ -460,8 +465,63 @@ void QuadrupleTranslator::parse() {
 
 
                 // 生成三地址代码
-                string expr = expression1.name + " " + reduceTerm.rightPart[1] + " " + expression2.name;
+                string expr = expression1.valString + " " + reduceTerm.rightPart[1] + " " + expression2.valString;
                 generateThreeAddressCode(tempVar.name, expr);
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "<<NEG>>->-<<TERM>>") {
+                // CORE:{24}【语义处理】取负运算
+
+                Symbol expression = symbolStack.top();
+                symbolStack.pop();
+                symbolStack.pop();
+                stateStack.pop();
+                stateStack.pop();
+
+                Symbol tempVar = Symbol::generateNewTempVar();
+                tempVar.PLACE = symbolTable.size();
+                tempVar.valString = "uminus " + expression.valString;
+
+                symbolTable.push_back(tempVar);
+                entry[tempVar.name] = tempVar.PLACE;
+
+                tempVarStack.push(tempVar);
+
+                Symbol newLeft = Symbol{reduceTerm.leftPart};
+                newLeft.valString = tempVar.name;
+                symbolStack.push(newLeft);
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                string expr = "uminus " + expression.valString;
+                generateThreeAddressCode(tempVar.name, expr);
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "<<FACTOR>>->(<<EXPR>>)") {
+                // CORE:{16} 【语义处理】括号运算
+                // 加上括号一共弹出三个符号
+                Symbol expression;
+                for (int count = 0; count < 3; ++count) {
+                    if (count == 1)
+                        expression = symbolStack.top();
+                    symbolStack.pop();
+                    stateStack.pop();
+                }
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                symbolStack.top().PLACE = expression.PLACE;
+                symbolStack.top().name = expression.name;
+                symbolStack.top().valString = expression.valString;
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
