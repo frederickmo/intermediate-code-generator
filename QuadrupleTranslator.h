@@ -38,7 +38,7 @@ struct Quadruple {
 
 vector<Quadruple> quadrupleList;
 vector<string> quadrupleOrTAC; // quadruple(四元式)或者TAC(Three Address Code, 三地址代码)
-const int offset = 10000;
+const int offset = 100;
 int nextQuad = 0 + offset;
 vector<Symbol> symbolTable;
 map<string, int> entry;
@@ -103,9 +103,14 @@ void QuadrupleTranslator::checkError(int pos) {
 static void printStateStack(const stack<int>& stateStack) {
     cout << "状态栈 ";
     stack<int> copy = stateStack;
+    stack<int> reversed;
     while(!copy.empty()) {
-        cout << copy.top() << " ";
+        reversed.push(copy.top());
         copy.pop();
+    }
+    while(!reversed.empty()) {
+        cout << reversed.top() << " ";
+        reversed.pop();
     }
     cout << endl;
 }
@@ -113,9 +118,14 @@ static void printStateStack(const stack<int>& stateStack) {
 static void printSymbolStack(const stack<Symbol>& symbolStack) {
     cout << "符号栈 ";
     stack<Symbol> copy = symbolStack;
+    stack<Symbol> reversed;
     while(!copy.empty()) {
-        cout << copy.top().name << " ";
+        reversed.push(copy.top());
         copy.pop();
+    }
+    while(!reversed.empty()) {
+        cout << reversed.top().name << " ";
+        reversed.pop();
     }
     cout << endl;
 }
@@ -130,7 +140,7 @@ void QuadrupleTranslator::parse() {
     stateStack.push(0); // 状态栈初始化：填入0装#
     symbolStack.push(Symbol{"#"}); // 符号栈初始化：填入0
 
-    generateIntermediateCode("_", "-", "-", offset);
+    generateIntermediateCode("j", "-", "-", offset);
     int oldPointer = -1; // 存入上一次操作的输入串指针
 
     while(!symbolStack.empty()) {
@@ -225,7 +235,7 @@ void QuadrupleTranslator::parse() {
                 stateStack.push(
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 symbolStack.top().PLACE = topSymbol.PLACE;
-                symbolStack.top().name = topSymbol.name;
+//                symbolStack.top().name = topSymbol.name;
                 // TODO : TAG
                 symbolStack.top().valString = topSymbol.valString;
                 // 调试用
@@ -248,10 +258,10 @@ void QuadrupleTranslator::parse() {
                 stateStack.push(
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 // 记录为该符号的入口地址
+
+                // valString记录的是终结符i的名字，名字为了在调试过程中能看懂归约到哪一步了所以保持<<ID>>不变
                 symbolStack.top().PLACE = entry[semanticStack.top()];
-                // TODO:            下一句我也没有把握，直接从语义栈里拿第一个词出来代表被归约的用户自定义变量名了。 => 目前来看结果似乎应该是对的。
-                symbolStack.top().name = semanticStack.top();
-                // TODO: TO BE CHECKED: i归约为<<ID>>时，ID的valString赋为i的name
+//                symbolStack.top().name = semanticStack.top();
                 symbolStack.top().valString = semanticStack.top();
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
@@ -532,7 +542,7 @@ void QuadrupleTranslator::parse() {
              */
         } else if (isAcceptTerm(curSymbolIndex)) {
             // 接受状态
-            cout << "该表达式能被成功分析, ACCEPT" << endl;
+            cout << endl << "ACCEPT" << endl << endl;
             // 弹出最后一个状态和预先放入状态栈的0
             stateStack.pop();
             symbolStack.pop();

@@ -16,7 +16,74 @@ using std::set;
 
 static map<string, int> VnToIndex, VtToIndex;
 
-static vector<string> productionTable;
+const vector<string> productionTable = {
+
+/*0*/            "<<ACC>>-><<START>>",
+
+/*1*/            "A-><<ID>>:=<<EXPR>>",
+
+/*2*/            "<<BAND>>-><<BNOT>>",
+/*3*/            "<<BAND>>-><<BAND>>andM<<BNOT>>",
+
+/*4*/            "<<BCMP>>-><<EXPR>><<RELOP>><<EXPR>>",
+/*5*/            "<<BCMP>>-><<EXPR>>",
+/*6*/            "<<BCMP>>->(<<BEXPR>>)",
+
+/*7*/            "<<BEXPR>>-><<BAND>>",
+/*8*/            "<<BEXPR>>-><<BEXPR>>orM<<BAND>>",
+
+/*9*/            "<<BNOT>>-><<BCMP>>",
+/*10*/            "<<BNOT>>->not<<BNOT>>",
+
+/*11*/            "<<ELIST>>-><<EXPR>>",
+/*12*/            "<<ELIST>>-><<ELIST>>,<<EXPR>>",
+
+/*13*/            "<<EXPR>>-><<NEG>>",
+/*14*/            "<<EXPR>>-><<EXPR>>+<<TERM>>",
+
+/*15*/            "<<FACTOR>>-><<ID>>",
+/*16*/            "<<FACTOR>>->(<<EXPR>>)",
+
+/*17*/            "<<ID>>->i", // variable_name
+
+/*18*/            "L->L;MS",
+/*19*/            "L->S",
+
+/*20*/            "<<LABEL>>-><<ID>>:",
+
+/*21*/            "M->null",
+/*22*/            "N->null",
+
+/*23*/            "<<NEG>>-><<TERM>>",
+/*24*/            "<<NEG>>->-<<TERM>>",
+
+/*25*/            "<<OPENSTMT>>->if<<BEXPR>>thenM<<STMT>>",
+/*26*/            "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>",
+
+/*27*/            "<<RELOP>>->=",
+/*28*/            "<<RELOP>>->!=",
+/*29*/            "<<RELOP>>-><",
+/*30*/            "<<RELOP>>-><=",
+/*31*/            "<<RELOP>>->>",
+/*32*/            "<<RELOP>>->>=",
+
+/*33*/            "S->if<<BEXPR>>thenMSNelseMS",
+/*34*/            "S->A",
+/*35*/            "S->{L}",
+/*36*/            "S->whileM<<BEXPR>>doMS",
+/*37*/            "S->call<<ID>>(<<ELIST>>)",
+/*38*/            "S->labelS",
+/*39*/            "S->goto<<ID>>",
+
+/*40*/            "<<START>>-><<STMT>>",
+
+/*41*/            "<<STMT>>->S",
+/*42*/            "<<STMT>>-><<OPENSTMT>>",
+
+/*43*/            "<<TERM>>-><<FACTOR>>",
+/*44*/            "<<TERM>>-><<TERM>>*<<FACTOR>>"
+
+};
 
 int symbolCount = 0;
 map<string, bool> nullable;
@@ -294,7 +361,7 @@ void GrammarAnalyzer::calculateFinalFIRSTAndFOLLOWSets() {
     } while (!isConverged);
 
     //控制台输出一下结果
-    cout << endl;
+//    cout << endl;
     for (auto const& vn : VnToIndex) {
         int index = vn.second;
         if (previousFIRST[index].size() != FIRST[index].size()

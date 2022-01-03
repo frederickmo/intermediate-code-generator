@@ -114,6 +114,11 @@ public:
 
     static void printStateTableToFile(const string& fileName);
 
+    // 输出纯数字表，读入方便
+    static void printStateTableToFilePureNumber(const string& fileName);
+
+    static void readStateTable(const string& fileName);
+
     // 这里是用LR(1)分析法构造的状态集
     void generateStateSet(int choice = 0);
 
@@ -449,7 +454,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
             ActionTable[curState][VtToIndex[symbolStack.front()]] = SHIFT_BASE + nextState;
         } else
             GotoTable[curState][VnToIndex[symbolStack.front()]] = nextState;
-        cout << endl;
+//        cout << endl;
 
         if (nextState == globalStateCount - 1) {
             symbolMap.clear();
@@ -580,6 +585,15 @@ void SemanticAnalyzer::generateLALRTable() {
 //    printStateTableToFile("LALR_state_table.csv");
 }
 
+//void SemanticAnalyzer::readStateTable(const string& fileName) {
+//    std::ifstream inFile(fileName, std::ios::in);
+//    string line;
+//    vector<vector<int>> GotoTable1, ActionTable1;
+//    while(std::getline(inFile, line)) {
+//        cout << line << endl;
+//    }
+//}
+
 void SemanticAnalyzer::printStateTableToFile(const string& fileName) {
 
     std::ofstream outFile;
@@ -625,6 +639,42 @@ void SemanticAnalyzer::printStateTableToFile(const string& fileName) {
     }
 
     outFile.close();
+}
+
+void SemanticAnalyzer::printStateTableToFilePureNumber(const string &fileName) {
+    std::ofstream outFile;
+    outFile.open(fileName, std::ios::out);
+
+    for (int i = 0; i < maxTermCount; ++i) {
+        for (int item : ActionTable[i])
+            outFile << item << ",";
+        for (int item : GotoTable[i])
+            outFile << item << ",";
+        outFile << "\n";
+    }
+    outFile.close();
+}
+
+void SemanticAnalyzer::readStateTable(const string &fileName) {
+    std::ifstream inFile(fileName, std::ios::in);
+    string line;
+    vector<vector<int>> tableTemp;
+    while(std::getline(inFile, line)) {
+        std::stringstream lineStr(line);
+        string number;
+        vector<int> rowTemp;
+        while(std::getline(lineStr, number, ',')) {
+            rowTemp.push_back(std::atoi(number.c_str()));
+        }
+        tableTemp.push_back(rowTemp);
+    }
+    cout << "tablesize: " << tableTemp.size() << " * " << tableTemp[0].size();
+    for (int i = 0; i < maxTermCount; ++i) {
+        for (int j = 0; j < 60; ++j)
+            ActionTable[i][j] = tableTemp[i][j];
+        for (int j = 60; j < 120; ++j)
+            GotoTable[i][j] = tableTemp[i][j];
+    }
 }
 
 
