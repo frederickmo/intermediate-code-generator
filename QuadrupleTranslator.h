@@ -22,6 +22,10 @@ public:
     int trueExit{};
     int falseExit{};
 
+    vector<int> trueList;
+    vector<int> falseList;
+    vector<int> nextList;
+
     static Symbol generateNewTempVar();
 };
 
@@ -36,10 +40,61 @@ struct Quadruple {
     }
 };
 
+class ComplexQuadruple {
+public:
+    Symbol argList[4];
+    int index{};
+};
+
+class newQuadruple {
+public:
+    string op;
+    bool isAssignment = true;
+    bool hasArg2 = true;
+    string arg1;
+    int arg1Index = 0;
+    int arg2Index = 0;
+    string arg2;
+    int resultIndex = 0;
+    string resultName;
+
+    newQuadruple(string op, string arg1, string resultName) :
+    op(std::move(op)), arg1(std::move(arg1)),
+    resultName(std::move(resultName)), hasArg2(false) {}
+
+    newQuadruple(string op, string arg1,
+                 string arg2, string resultName) :
+                 op(std::move(op)), arg1(std::move(arg1)),
+                 arg2(std::move(arg2)), resultName(std::move(resultName)) {}
+
+    newQuadruple(string op, bool isAssignment,
+                 string arg1, int arg1Index,
+                 string arg2, int arg2Index,
+                 string resultName, int resultIndex) :
+                 op(std::move(op)), isAssignment(isAssignment),
+                 arg1(std::move(arg1)), arg1Index(arg1Index),
+                 arg2(std::move(arg2)), arg2Index(arg2Index),
+                 resultName(std::move(resultName)), resultIndex(resultIndex) {}
+
+    void print() const {
+        if (isAssignment) {
+            if (hasArg2)
+                cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+            else
+                cout << resultName << " := " << arg1 << endl;
+        }
+        else
+            cout << "(" << op << ", " << arg1 << ", " << arg2 << ", " << resultIndex << ")";
+    }
+};
+
+vector<newQuadruple> newQuadrupleList;
+
 vector<Quadruple> quadrupleList;
 vector<string> quadrupleOrTAC; // quadruple(四元式)或者TAC(Three Address Code, 三地址代码)
 const int offset = 100;
 int nextQuad = 0 + offset;
+vector<int> addresses; // 四元式地址表
 vector<Symbol> symbolTable;
 map<string, int> entry;
 int tempVariableCount = 0;
@@ -54,13 +109,17 @@ public:
 
     static void generateIntermediateCode(const string& op, const string& arg1, const string& arg2, int resultIndex);
 
-    static void generateThreeAddressCode(const string& result, const string& expression);
+    static void generateSingleArgThreeAddressCode(const string& result, const string& op, const string& arg);
+
+    static void generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, const string& arg2);
+
+    static void generateQuadruple(const string& op, const string& arg1Name, const string& arg2Name, int resultIndex);
 
     static void generateFinalIntermediateCode();
 
-    static int merge(int l1, int l2);
+    static int merge(int listHead1, int listHead2);
 
-    static void backpatch(int head, int t);
+    static void backPatch(int listHead, int quad);
 
     static void checkError(int pos);
 
@@ -82,11 +141,53 @@ void QuadrupleTranslator::generateFinalIntermediateCode() {
 
 }
 
-int QuadrupleTranslator::merge(int list1, int list2) {
-    return 0;
+int QuadrupleTranslator::merge(int listHead1, int listHead2) {
+    // 如果是第一个or第二个未赋值则不合并直接返回listHead1
+    if (listHead2 == offset || listHead2 == -1 || listHead2 == 0)
+        return listHead1;
+    else {
+        // 合并的链首
+        string listHead1Str = std::to_string(listHead1);
+        // 被回填的地址
+        int tempQuad = listHead2;
+        // 取出需要回填的第一个四元式
+        string form = quadrupleOrTAC.at(tempQuad - offset);
+        // 取第一个回填的四元式中的下一个需要回填的四元式的序号
+        string nextQuadIndexStrToMerge = form.substr(form.length() - 4, 3);
+        int nextQuadIndexToMerge = std::atoi(nextQuadIndexStrToMerge.c_str());
+        // 直到填到第一个四元式为止
+        while (nextQuadIndexToMerge != offset) {
+            // 更新需要回填的四元式地址
+            tempQuad = nextQuadIndexToMerge;
+            form = quadrupleOrTAC.at(tempQuad - offset);
+            nextQuadIndexStrToMerge = form.substr(form.length() - 4, 3);
+            nextQuadIndexToMerge = std::atoi(nextQuadIndexStrToMerge.c_str());
+        }
+        string originalForm = quadrupleOrTAC.at(tempQuad - offset);
+        quadrupleOrTAC.at(tempQuad - offset) =
+                originalForm.substr(0, originalForm.length() - 4)
+                + listHead1Str + ")";
+    }
 }
 
-void QuadrupleTranslator::backpatch(int truelist, int quad) {
+void QuadrupleTranslator::backPatch(int listHead, int quad) {
+    if (listHead == -1 || quad == 0)
+        return;
+
+    int tmpQuad = listHead;
+    string quadStr = std::to_string(quad);
+    // 从后往前回填直到第一个式子
+    while (tmpQuad != offset) {
+        // 取出需要回弹的表达式
+        string form = quadrupleOrTAC.at(tmpQuad - offset);
+        // 取出该表达式需要回填的地方（但是这里其实是下一个需要回弹的表达式的序号）
+        string nextFormIndexToBackPatch = form.substr(form.length() - 4, 3);
+        // 将新的地址进行回填
+        quadrupleOrTAC.at(tmpQuad - offset) =
+                form.substr(0, form.length() - 4) + quadStr + ")";
+        // 取下一个需要回填的四元式的序号
+        tmpQuad = std::atoi(nextFormIndexToBackPatch.c_str());
+    }
 
 }
 
@@ -389,7 +490,7 @@ void QuadrupleTranslator::parse() {
                 string PLACEstr = std::to_string(expression.PLACE);
                 // TODO:      因为实验手册要求的是用三地址代码。。。但是跳转没法三地址代码，所以就 ①赋值用三地址代码 ②跳转四元式 混用吧。
                 // generateIntermediateCode(":=", PLACEstr, "-", id.PLACE);
-                generateThreeAddressCode(id.valString, expression.valString);
+                generateSingleArgThreeAddressCode(id.valString, ":=", expression.valString);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -475,8 +576,8 @@ void QuadrupleTranslator::parse() {
 
 
                 // 生成三地址代码
-                string expr = expression1.valString + " " + reduceTerm.rightPart[1] + " " + expression2.valString;
-                generateThreeAddressCode(tempVar.name, expr);
+//                string expr = expression1.valString + " " + reduceTerm.rightPart[1] + " " + expression2.valString;
+                generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString, expression2.valString);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -507,7 +608,7 @@ void QuadrupleTranslator::parse() {
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 string expr = "uminus " + expression.valString;
-                generateThreeAddressCode(tempVar.name, expr);
+                generateSingleArgThreeAddressCode(tempVar.name, ":=", expr);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -536,6 +637,33 @@ void QuadrupleTranslator::parse() {
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
+            } else if (production == "<<BEXPR>>-><<BAND>>"
+            || production == "<<BAND>>-><<BNOT>>"
+            || production == "<<BNOT>>-><<BCMP>>") {
+                // CORE: {2,7,9}【语义分析】布尔表达式递归归约
+
+                // 记录产生式右部符号
+                Symbol rightSymbol = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                // 布尔表达式，传递真假出口
+                symbolStack.top().trueExit = rightSymbol.trueExit;
+                symbolStack.top().falseExit = rightSymbol.falseExit;
+                // 下面这句不知道啥意思，但加上了
+                symbolStack.top().valString = rightSymbol.valString;
+            } else if (production == "<<OPENSTMT>>->if<<BEXPR>>thenM<<STMT>>") {
+                // CORE:{25}【语义分析】if E then M S 条件语句
+                // 这个有点难啊。。。。。。暂时想不到空字是怎么归约的
+
+
+
+
             }
             /**
              * 还没完。。但是先把结束态写了。
@@ -569,8 +697,22 @@ void QuadrupleTranslator::lex() {
 
 }
 
-void QuadrupleTranslator::generateThreeAddressCode(const string& result, const string& expression) {
-    quadrupleOrTAC.push_back(result + " := " + expression);
+void QuadrupleTranslator::generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, const string& arg2) {
+//    quadrupleOrTAC.push_back(result + " := " + expression);
+    newQuadruple quadruple(op, arg1, arg2, result);
+    newQuadrupleList.push_back(quadruple);
+}
+
+void QuadrupleTranslator::generateQuadruple(const string &op, const string &arg1Name, const string &arg2Name,
+                                            int resultIndex) {
+
+    newQuadruple quadruple(op, false, arg1Name, 0, arg2Name, 0, std::to_string(resultIndex), resultIndex);
+    newQuadrupleList.push_back(quadruple);
+}
+
+void QuadrupleTranslator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg) {
+    newQuadruple quadruple(op, arg, result);
+    newQuadrupleList.push_back(quadruple);
 }
 
 #endif //INTERMEDIATE_CODE_GENERATOR_QUADRUPLETRANSLATOR_H

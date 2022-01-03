@@ -25,8 +25,8 @@ int main() {
     quadrupleTranslator.lex();
     quadrupleTranslator.parse();
 
-    for (const auto& quadruple : quadrupleOrTAC)
-        cout << quadruple << endl;
+    for (const auto& quadruple : newQuadrupleList)
+        quadruple.print();
 
 
 
