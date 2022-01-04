@@ -440,6 +440,29 @@ void QuadrupleTranslator::parse() {
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
+            } else if (production == "<<BCMP>>->(<<BEXPR>>)") {
+                // CORE:带括号的布尔表达式归约
+                Symbol booleanExpr;
+                for (int count = 0; count < 3; ++count) {
+                    if (count == 1)
+                        booleanExpr = symbolStack.top();
+                    symbolStack.pop();
+                    stateStack.pop();
+                }
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                symbolStack.top().trueExit = booleanExpr.trueExit;
+                symbolStack.top().falseExit = booleanExpr.falseExit;
+
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+
             } else if (production == "<<BCMP>>-><<EXPR>>") {
                 // CORE:差点漏了这个单目布尔表达式。。。。
                 Symbol booleanExpr = symbolStack.top();
