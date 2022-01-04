@@ -3,10 +3,6 @@
 
 #include "QuadrupleTranslator.h"
 
-#include <iostream>
-
-
-
 int main() {
 
     GrammarAnalyzer grammarAnalyzer;
@@ -26,7 +22,7 @@ int main() {
     quadrupleTranslator.parse();
 
     for (const auto& quadruple : newQuadrupleList)
-        quadruple.print();
+        quadruple.printArgInName();
 
 
 
