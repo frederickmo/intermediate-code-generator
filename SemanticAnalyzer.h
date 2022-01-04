@@ -120,10 +120,10 @@ public:
     static void readStateTable(const string& fileName);
 
     // 这里是用LR(1)分析法构造的状态集
-    void generateStateSet(int choice = 0);
+    static void generateStateSet(int choice = 0);
 
     // 似乎LALR就是从LR(1)里合并了同心集就完了
-    void generateLALRTable();
+    static void generateLALRTable();
 };
 
 int SemanticAnalyzer::mergeSet() {

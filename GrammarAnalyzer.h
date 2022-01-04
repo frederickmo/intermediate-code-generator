@@ -109,7 +109,7 @@ public:
     static string getVn(const string& production);
     static string getVt(const string& production);
     // 对产生式进行扫描，识别所有终结符和非终结符
-    void scanProduction();
+    static void scanProduction();
     // RHS = right hand side 将产生式右部按（非）终结符分割
     static vector<string> splitRHSOfProduction(const string& RHSOfProduction);
 
@@ -123,7 +123,7 @@ public:
     static void calculateFIRSTAndFOLLOWSets();
 
     // 计算得到最终FIRST和FOLLOW集合
-    void calculateFinalFIRSTAndFOLLOWSets();
+    static void calculateFinalFIRSTAndFOLLOWSets();
 
 
 

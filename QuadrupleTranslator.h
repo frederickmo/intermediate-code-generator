@@ -18,6 +18,7 @@ public:
     string name;
     string val{"0"};
     string valString; // 这个属性是生成三地址代码用的
+    bool isInteger = false;
     int PLACE{};
     int trueExit{}; // 真出口
     int falseExit{}; // 假出口
@@ -50,34 +51,38 @@ public:
     bool isAssignment = true;
     bool hasArg2 = true;
     string arg1;
+    bool isArg1Integer = false;
     int arg1Index = 0;
-    int arg2Index = 0;
     string arg2;
+    bool isArg2Integer = false;
+    int arg2Index = 0;
     int resultIndex = 0;
     string resultName;
 
-    newQuadruple(string op, string arg1, string resultName) :
-    op(std::move(op)), arg1(std::move(arg1)),
+    newQuadruple(string op, string arg1, bool isArg1Integer, string resultName) :
+    op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
     resultName(std::move(resultName)), hasArg2(false) {}
 
-    newQuadruple(string op, string arg1,
-                 string arg2, string resultName) :
-                 op(std::move(op)), arg1(std::move(arg1)),
-                 arg2(std::move(arg2)), resultName(std::move(resultName)) {}
+    newQuadruple(string op, string arg1, bool isArg1Integer,
+                 string arg2, bool isArg2Integer, string resultName) :
+                 op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
+                 arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
 
     newQuadruple(string op, bool isAssignment,
-                 string arg1, int arg1Index,
-                 string arg2, int arg2Index,
+                 string arg1, int arg1Index, bool isArg1Integer,
+                 string arg2, int arg2Index, bool isArg2Integer,
                  string resultName, int resultIndex) :
                  op(std::move(op)), isAssignment(isAssignment),
-                 arg1(std::move(arg1)), arg1Index(arg1Index),
-                 arg2(std::move(arg2)), arg2Index(arg2Index),
+                 arg1(std::move(arg1)), arg1Index(arg1Index), isArg1Integer(isArg1Integer),
+                 arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
                  resultName(std::move(resultName)), resultIndex(resultIndex) {}
 
     void print() const {
         if (isAssignment) {
             if (hasArg2)
                 cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+            else if (op == "uminus")
+                cout << resultName << " := uminus " << arg1 << endl;
             else
                 cout << resultName << " := " << arg1 << endl;
         }
@@ -89,10 +94,26 @@ public:
         if (isAssignment) {
             if (hasArg2)
                 cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+            else if (op == "uminus")
+                cout << resultName << " := uminus " << arg1 << endl;
             else
                 cout << resultName << " := " << arg1 << endl;
         } else
             cout << "(" << op << ", " << arg1 << ", " << arg2 << ", " << resultIndex << ")" << endl;
+    }
+
+    void printAsQuadruple() const {
+        if (isAssignment) {
+            if (hasArg2)
+                cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
+                << (isArg2Integer ? "#" : "") << arg2 << ", " << resultName << ")" << endl;
+            else if (op == "uminus")
+                cout << "(" << "uminus" << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
+            else
+                cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
+        } else
+            cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
+            << (isArg2Integer ? "#" : "") << arg2 << ", " << resultIndex << ")" << endl;
     }
 };
 
@@ -115,13 +136,13 @@ Symbol Symbol::generateNewTempVar() {
 class QuadrupleTranslator {
 public:
 
-    static void generateIntermediateCode(const string& op, const string& arg1, const string& arg2, int resultIndex);
+    static void generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex);
 
-    static void generateSingleArgThreeAddressCode(const string& result, const string& op, const string& arg);
+    static void generateSingleArgThreeAddressCode(const string& result, const string& op, const string& arg, bool isArgInteger);
 
-    static void generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, const string& arg2);
+    static void generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer);
 
-    static void generateQuadruple(const string& op, const string& arg1Name, const string& arg2Name, int resultIndex);
+    static void generateQuadruple(const string& op, const string& arg1Name, bool isArg1Integer, const string& arg2Name, bool isArg2Integer, int resultIndex);
 
     static void generateFinalIntermediateCode();
 
@@ -138,32 +159,33 @@ public:
     static void lex();
 };
 
-void QuadrupleTranslator::generateIntermediateCode(const string& op, const string& arg1, const string& arg2, int resultIndex) {
-    quadrupleList.push_back(Quadruple{op, arg1, arg2, resultIndex});
-    string result = std::to_string(resultIndex);
-    quadrupleOrTAC.push_back("(" + op + ", " + arg1 + ", " + arg2 + ", " + result + ")");
-    newQuadruple quadruple(op, false, arg1, entry[arg1], arg2, entry[arg2], std::to_string(resultIndex), resultIndex);
+void QuadrupleTranslator::generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex) {
+//    quadrupleList.push_back(Quadruple{op, arg1, arg2, resultIndex});
+//    string result = std::to_string(resultIndex);
+//    quadrupleOrTAC.push_back("(" + op + ", " + arg1 + ", " + arg2 + ", " + result + ")");
+    newQuadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer, std::to_string(resultIndex), resultIndex);
     newQuadrupleList.push_back(quadruple);
     nextQuad++;
 }
 
-void QuadrupleTranslator::generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, const string& arg2) {
+void QuadrupleTranslator::generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1,
+                                                            bool isArg1Integer,  const string& arg2, bool isArg2Integer) {
 //    quadrupleOrTAC.push_back(result + " := " + expression);
-    newQuadruple quadruple(op, arg1, arg2, result);
+    newQuadruple quadruple(op, arg1, isArg1Integer, arg2, isArg2Integer, result);
     newQuadrupleList.push_back(quadruple);
     nextQuad++;
 }
 
-void QuadrupleTranslator::generateQuadruple(const string &op, const string &arg1Name, const string &arg2Name,
-                                            int resultIndex) {
+void QuadrupleTranslator::generateQuadruple(const string &op, const string &arg1Name, bool isArg1Integer, const string &arg2Name,
+                                            bool isArg2Integer, int resultIndex) {
 
-    newQuadruple quadruple(op, false, arg1Name, 0, arg2Name, 0, std::to_string(resultIndex), resultIndex);
+    newQuadruple quadruple(op, false, arg1Name, 0, isArg1Integer, arg2Name, 0, isArg2Integer, std::to_string(resultIndex), resultIndex);
     newQuadrupleList.push_back(quadruple);
     nextQuad++;
 }
 
-void QuadrupleTranslator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg) {
-    newQuadruple quadruple(op, arg, result);
+void QuadrupleTranslator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger) {
+    newQuadruple quadruple(op, arg, isArgInteger, result);
     newQuadrupleList.push_back(quadruple);
     nextQuad++;
 }
@@ -315,6 +337,7 @@ void QuadrupleTranslator::parse() {
                         tmpSymbol.name = lexicalTable[inputPointer].token;
                         tmpSymbol.val = lexicalTable[inputPointer].token;
                         tmpSymbol.valString = tmpSymbol.val;
+                        tmpSymbol.isInteger = lexicalTable[inputPointer].indexInKeywords == INTEGER;
                         tmpSymbol.PLACE = symbolTable.size();
                         symbolTable.push_back(tmpSymbol);
                         entry[tmpSymbol.name] = tmpSymbol.PLACE;
@@ -385,6 +408,7 @@ void QuadrupleTranslator::parse() {
 //                symbolStack.top().name = topSymbol.name;
                 // TODO : TAG
                 symbolStack.top().valString = topSymbol.valString;
+                symbolStack.top().isInteger = topSymbol.isInteger;
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -409,7 +433,9 @@ void QuadrupleTranslator::parse() {
                 // valString记录的是终结符i的名字，名字为了在调试过程中能看懂归约到哪一步了所以保持<<ID>>不变
                 symbolStack.top().PLACE = entry[semanticStack.top()];
 //                symbolStack.top().name = semanticStack.top();
+                // TODO: TAG
                 symbolStack.top().valString = semanticStack.top();
+                symbolStack.top().isInteger = symbolTable.back().isInteger;
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -433,7 +459,8 @@ void QuadrupleTranslator::parse() {
 
                 // 这样就可以了吗？？
                 // semanicStack存储了变量名和各种终结符,直接读取栈顶的符号名应该就是符号吧?
-                symbolStack.top().name = semanticStack.top();
+//                symbolStack.top().name = semanticStack.top();
+//                symbolStack.top().name = reduceTerm.rightPart.at(0);
                 symbolStack.top().val = semanticStack.top();
                 // TODO : TO BE CHECKED:符号的valString也赋给上层relop
                 symbolStack.top().valString = reduceTerm.rightPart.at(0);
@@ -477,8 +504,8 @@ void QuadrupleTranslator::parse() {
 
                 symbolStack.top().trueExit = nextQuad;
                 symbolStack.top().falseExit = nextQuad + 1;
-                generateIntermediateCode("jnz", booleanExpr.valString, "-", 0);
-                generateIntermediateCode("j", "-", "-", 0);
+                generateIntermediateCode("jnz", booleanExpr.valString, booleanExpr.isInteger, "-", false, 0);
+                generateIntermediateCode("j", "-", false, "-", false, 0);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -524,8 +551,9 @@ void QuadrupleTranslator::parse() {
                  // 生成两条语句
                 string PLACE1str = std::to_string(expression1.PLACE);
                 string PLACE2str = std::to_string(expression2.PLACE);
-                generateIntermediateCode("j" + relop.valString, expression1.valString, expression2.valString, 0);
-                generateIntermediateCode("j", "-", "-", 0);
+                generateIntermediateCode("j" + relop.valString, expression1.valString,
+                                         expression1.isInteger, expression2.valString, expression2.isInteger, 0);
+                generateIntermediateCode("j", "-", false, "-", false,0);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -578,7 +606,7 @@ void QuadrupleTranslator::parse() {
                 string PLACEstr = std::to_string(expression.PLACE);
                 // TODO:      因为实验手册要求的是用三地址代码。。。但是跳转没法三地址代码，所以就 ①赋值用三地址代码 ②跳转四元式 混用吧。
                 // generateIntermediateCode(":=", PLACEstr, "-", id.PLACE);
-                generateSingleArgThreeAddressCode(id.valString, ":=", expression.valString);
+                generateSingleArgThreeAddressCode(id.valString, ":=", expression.valString, expression.isInteger);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -659,6 +687,7 @@ void QuadrupleTranslator::parse() {
                 Symbol newLeft = Symbol{reduceTerm.leftPart};
                 // FIXME:               不保证这个地方没有问题，只是对于单个a:=b+c的产生式没问题
                 newLeft.valString = tempVar.name;
+//                newLeft.valString = tempVar.valString;
                 symbolStack.push(newLeft);
                 curState = stateStack.top();
                 stateStack.push(
@@ -668,7 +697,8 @@ void QuadrupleTranslator::parse() {
 
                 // 生成三地址代码
 //                string expr = expression1.valString + " " + reduceTerm.rightPart[1] + " " + expression2.valString;
-                generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString, expression2.valString);
+                generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString,
+                                                  expression1.isInteger, expression2.valString, expression2.isInteger);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -698,8 +728,8 @@ void QuadrupleTranslator::parse() {
                 stateStack.push(
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
-                string expr = "uminus " + expression.valString;
-                generateSingleArgThreeAddressCode(tempVar.name, ":=", expr);
+//                string expr = "uminus " + expression.valString;
+                generateSingleArgThreeAddressCode(tempVar.name, "uminus", expression.valString, expression.isInteger);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -806,7 +836,7 @@ void QuadrupleTranslator::parse() {
                 } else if (reduceTerm.leftPart == "N") {
                     // N的nextlist记录nextquad，意思是N产生的四元式的地址等待回填
                     symbolStack.top().nextList = nextQuad;
-                    generateIntermediateCode("j", " ", " ", 0);
+                    generateIntermediateCode("j", "-", false, "-", false, 0);
                 }
 
                 // 调试用
