@@ -313,7 +313,7 @@ void QuadrupleTranslator::parse() {
 
         // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
         if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
-        !(lexicalTable[inputPointer].token == "#" || lexicalTable[inputPointer].token.empty())) {
+        !(lexicalTable[inputPointer].token == "#")) {
             // 如果该状态一行可以读空字且下一个符号不是结束符#，则读入一个空字
             symbolToRead = "null";
         } else {
@@ -867,6 +867,9 @@ void QuadrupleTranslator::lex() {
     locateInputCode.push_back(0);
     while (std::getline(inFile, inputCode)) {
         cout << inputCode << endl;
+        // ATTENTION:句末读空字问题已解决：语法分析的时候手动在输入串末尾添加一个#
+        inputCode.push_back('#');
+//        cout << "现在正在语法解析 " << inputCode << endl;
         Tokenizer::lexicalAnalyze(inputCode);
         locateInputCode.push_back(lexicalTableLength);
     }
