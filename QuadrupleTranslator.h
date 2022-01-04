@@ -289,6 +289,7 @@ void QuadrupleTranslator::parse() {
         string nextSymbol = lexicalTable[inputPointer].token;
         cout << "";
 
+        // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
         if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
         !(lexicalTable[inputPointer].token == "#" || lexicalTable[inputPointer].token.empty())) {
             // 如果该状态一行可以读空字且下一个符号不是结束符#，则读入一个空字
