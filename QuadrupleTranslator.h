@@ -234,22 +234,17 @@ int QuadrupleTranslator::merge(int listHead1, int listHead2) {
         else if (listHead1 != -1)
             return listHead1;
     }
-    // list2为空，直接返回list1的表头
-//    if (listHead2 == offset || listHead2 == -1 || listHead2 == 0) {
-//        return listHead1;
-//    }
     else {
         // 递归寻找表头：每个跳转四元式的第四位在填写真正的跳转地址前，
         // 填写的是等待被回填的所有四元式组成的链表中的上一个四元式的序号。
         // 该链表的表头因为没有上一个四元式了，所以第四位填写的是第一个地址即offset，
         // 因此一直找到最后一位为offset的四元式，就是该链表的表头。
-        int tempHead = listHead2;
-        while (newQuadrupleList.at(tempHead).resultIndex != 0) {
-            tempHead = newQuadrupleList.at(tempHead).resultIndex;
-            // FIXME: 以下是强行跳出循环的意义不明语句
+        int nextQuadIndex = listHead2;
+        while (newQuadrupleList.at(nextQuadIndex).resultIndex != 0) {
+            nextQuadIndex = newQuadrupleList.at(nextQuadIndex).resultIndex;
         }
         // 此时tempHead指向的已经是表头，把表头指向的地址指向list1的链尾，完成合并操作。
-        newQuadrupleList.at(tempHead).resultIndex = listHead1;
+        newQuadrupleList.at(nextQuadIndex).resultIndex = listHead1;
         return listHead2;
     }
 }
@@ -259,6 +254,14 @@ int QuadrupleTranslator::merge(int listHead1, int listHead2, int listHead3) {
     return merge(listHead1, merge(listHead2, listHead3));
 }
 
+/**
+ * CORE:【关于回填】
+ * 正式生成的四元式里每一条的序号(即地址)
+ * 都是其在四元式列表里的索引加上了一个偏移量(offset=100)得来。
+ * 对于跳转语句，为了区分已经有确定跳转地址的语句和没有确定跳转地址(等待回填)的语句，
+ * 在填写假地址等待回填的时候，填的是没有加上偏移量的四元式索引。
+ * 因此可以通过跳转语句的跳转地址是否大于等于偏移量来得知是否已经回填。
+ */
 
 // 回填，在得到一支跳转地址相同但未确定的四元式的确定跳转地址后，用该地址回填这些四元式
 void QuadrupleTranslator::backPatch(int listHead, int quad) {
@@ -267,16 +270,7 @@ void QuadrupleTranslator::backPatch(int listHead, int quad) {
 
     int tmpIndex = listHead;
 
-//    while (tmpIndex != offset) {
-//        // 目前正在回填的四元式的第四位即下一个需要回填的四元式的序号
-//        int nextQuadrupleIndex = newQuadrupleList.at(tmpIndex - offset).resultIndex + offset;
-//        // 回填操作
-//        newQuadrupleList.at(tmpIndex - offset).resultIndex = quad;
-//        // 更新寻找下一条
-//        tmpIndex = nextQuadrupleIndex;
-//    }
-
-    // TODO: 对于链首也需要回填的地方，while会跳过第一个需要回填的式子，改成了do while多一次循环试试看
+    // ATTENTION: 对于链首也需要回填的地方，while会跳过第一个需要回填的式子，改成了do while多一次循环试试看
     do {
         // 目前正在回填的四元式的第四位即下一个需要回填的四元式的序号
         int nextQuadrupleIndex = newQuadrupleList.at(tmpIndex).resultIndex;
@@ -860,6 +854,8 @@ void QuadrupleTranslator::parse() {
 
             } else if (production == "S->if<<BEXPR>>thenMSNelseMS"
             || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
+                // CORE:{26,33}【语义分析】if then else语句的翻译
+
                 // 一共9个符号：一共需要弹出9次
                 // if(8) <<BEXPR>>(7) then(6) M(5) S(4) N(3) else(2) M(1) S(0)
                 Symbol booleanExpr, M1, statement1, N, M2, statement2;
@@ -887,7 +883,6 @@ void QuadrupleTranslator::parse() {
 
                 backPatch(booleanExpr.trueExit, M1.quad);
                 backPatch(booleanExpr.falseExit, M2.quad);
-                // FIXME: 以下merge函数有点问题，先注释掉看能不能正常生成语句
                 symbolStack.top().nextList = merge(statement1.nextList, N.nextList, statement2.nextList);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
@@ -916,7 +911,7 @@ void QuadrupleTranslator::parse() {
                     // M是记录nextquad
                     symbolStack.top().quad = nextQuad;
                 } else if (reduceTerm.leftPart == "N") {
-                    // N的nextlist记录nextquad，意思是N产生的四元式的地址等待回填
+                    // N的nextlist记录nextquad，意思是N产生的四元式的跳转地址等待回填
                     symbolStack.top().nextList = nextQuad - offset;
                     generateIntermediateCode("j", "-", false, "-", false, 0);
                 }
@@ -926,6 +921,13 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
 
+            } else if (production == "S->whileM<<BEXPR>>doMS") {
+                //CORE:{36}【语义分析】while语句
+
+                // 一共需要
+                for (int count = 0; count < 6; ++count) {
+
+                }
             }
             /**
              * 还没完。。但是先把结束态写了。
