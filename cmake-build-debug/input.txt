@@ -1,1 +1,1 @@
-a: b:=c
+{goto a; goto a; goto a; goto a; a: b:=c}

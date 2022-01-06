@@ -27,6 +27,7 @@ const int offset = 100;
 int nextQuad = 0 + offset;
 vector<int> addresses; // 四元式地址表
 vector<Symbol> symbolTable;
+map<string, int> variableTable;
 map<string, Label> labelTable;
 map<string, int> entry;
 int tempVariableCount = 0;
@@ -50,7 +51,7 @@ public:
 class Label {
 public:
     bool isDefined = false; // 是否已定义
-    int quad; // 跳转地址
+    int quad = -1; // 跳转地址
     int nextList = -1; // 待回填地址
 };
 
@@ -250,7 +251,7 @@ int QuadrupleTranslator::merge(int listHead1, int listHead2) {
         // 该链表的表头因为没有上一个四元式了，所以第四位填写的是第一个地址即offset，
         // 因此一直找到最后一位为offset的四元式，就是该链表的表头。
         int nextQuadIndex = listHead2;
-        while (newQuadrupleList.at(nextQuadIndex).resultIndex != 0) {
+        while (newQuadrupleList.at(nextQuadIndex).resultIndex > 0) {
             nextQuadIndex = newQuadrupleList.at(nextQuadIndex).resultIndex;
         }
         // 此时tempHead指向的已经是表头，把表头指向的地址指向list1的链尾，完成合并操作。
@@ -288,7 +289,7 @@ void QuadrupleTranslator::backPatch(int listHead, int quad) {
         newQuadrupleList.at(tmpIndex).resultIndex = quad;
         // 更新寻找下一条
         tmpIndex = nextQuadrupleIndex;
-    } while (tmpIndex != 0);
+    } while (tmpIndex > 0);
 
 //    while (tmpIndex != 0) {
 //        // 目前正在回填的四元式的第四位即下一个需要回填的四元式的序号
@@ -309,6 +310,7 @@ void QuadrupleTranslator::checkError(int pos) {
             break;
         }
     }
+    exit(0);
 }
 
 static void printStateStack(const stack<int>& stateStack) {
@@ -449,6 +451,19 @@ void QuadrupleTranslator::parse() {
                 // CORE:{13,15,23,43}【语义处理】从简单变量i一路归约到表达式expression然后参与计算
 
                 Symbol topSymbol = symbolStack.top();
+
+                // ATTENTION: 如果是ID规约为FACTOR，还要考虑这个符号是否已经被定义为LABEL;如果未定义为LABEL则定义为VARIABLE
+                if (production == "<<FACTOR>>-><<ID>>") {
+//                    cout << "当前被归约的ID的valstring:" << topSymbol.valString << endl;
+                    if (labelTable.count(topSymbol.valString) != 0) {
+                        std::cerr << "变量 " << topSymbol.valString
+                        << " 已被定义为label标识符\n";
+                        checkError(0);
+                    } else {
+                        variableTable[topSymbol.valString]++;
+                    }
+                }
+
                 symbolStack.pop();
                 stateStack.pop();
                 // 规约的产生式左部进栈
@@ -574,18 +589,6 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
             } else if (production == "<<BCMP>>-><<EXPR>><<RELOP>><<EXPR>>") {
-
-
-                /**
-                 * 从这里往下是一个完整的if E then M S的流程: => if a<b then c:=d
-                 * 包含
-                 * ① 布尔表达式(a<b)
-                 * ② 赋值语句(c:=d)
-                 * ③ 条件语句(if E then M S)
-                 */
-
-
-
                 /**
                  * CORE:{4}     【语义处理】从两个表达式(expr)进行布尔运算归约到布尔类型比较表达式(bool_comparison)
                  */
@@ -638,6 +641,16 @@ void QuadrupleTranslator::parse() {
                         id = symbolStack.top();
                     symbolStack.pop();
                     stateStack.pop();
+                }
+
+//                cout << "id:=expr归约过程中,id的valstring是： " << id.valString << endl;
+//                cout << "labelTable有 " << id.valString << "吗 => " << labelTable.count(id.valString) << endl;
+                if (labelTable.count(id.valString) != 0) {
+                    std::cerr << "变量 " << id.valString << " 已被定义为label标识符\n";
+                    checkError(0);
+                } else {
+                    // 未被定义为标识符，则定义为变量
+                    variableTable[id.valString]++;
                 }
 
                 symbolStack.push(Symbol{reduceTerm.leftPart});
@@ -1009,25 +1022,113 @@ void QuadrupleTranslator::parse() {
                 symbolStack.pop();
                 stateStack.pop();
 
+//                cout << "当前被归约为label的id的valstring:" << label.valString << endl;
+
+                // ATTENTION:如果label已经被定义为variable则报错
+                if (variableTable[label.valString] != 0) {
+                    std::cerr << "label标识符 "
+                    << label.valString << " 已被定义为变量\n";
+                    checkError(0);
+                }
+
                 // label分三种情况：
                 // ① label已定义(已有跳转地址，重新赋跳转地址)则报错
                 // ② label已在符号表中，但是没有地址，赋地址
                 //      (这是先有goto label再label: ...的情况)
                 // ③ label不在符号表中，加入符号表
                 //      (这是现有label: ...的情况)
-                if (labelTable.count(label.name) != 0) {
-                    if (labelTable[label.name].isDefined) {
-                        std::cerr << "重复定义label\n";
+                if (labelTable.count(label.valString) != 0) {
+                    if (labelTable[label.valString].quad != -1) {
+                        std::cerr << "label标识符 " << label.valString << " 被重复定义\n";
                         checkError(0);
                     } else {
                         // 这里是已经有goto该label但是label本身还没有定义
-                        labelTable[label.name].quad = nextQuad;
-                        backPatch(labelTable[label.name].nextList, nextQuad);
+                        labelTable[label.valString].quad = nextQuad;
+                        backPatch(labelTable[label.valString].nextList, nextQuad);
                     }
                 } else {
                     // 还没有别的四元式goto到该label，所以先赋一个地址
-                    labelTable[label.name].quad = nextQuad;
+                    labelTable[label.valString].quad = nextQuad;
+//                    cout << "新定义label " << label.valString << " : 指向地址：" << nextQuad << endl;
                 }
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+
+            } else if (production == "S-><<LABEL>>S") {
+                //CORE:{38}【语义分析】label语句被归约为语句
+
+                Symbol statement = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+                symbolStack.pop();
+                stateStack.pop();
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "S->goto<<ID>>") {
+                //CORE:{39}【语义分析】goto语句
+
+                Symbol label = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+                symbolStack.pop();
+                stateStack.pop();
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+
+
+
+                int address = -1;
+//                cout << "第一次出现goto:" << label.valString << " " << labelTable.count(label.valString) << endl;
+                if (labelTable.count(label.valString) == 0) {
+//                    std::cerr << "跳转到未定义的label " << label.valString << endl;
+//                    checkError(0);
+                    labelTable[label.valString].nextList =
+                            merge(labelTable[label.valString].nextList,
+                                  nextQuad - offset);
+                } else {
+//                    cout << "label "<< label.valString <<"出现的次数=0吗？" << labelTable.count(label.valString) << endl;
+                    // 如果该label的跳转地址已确定，则跳转到该地址
+                    if (labelTable[label.valString].quad != -1) {
+                        address = labelTable[label.valString].quad;
+//                        newQuadrupleList.back().resultIndex = labelTable[label.valString].quad;
+                    }
+                    // 否则将该地址添加到label的nextList里
+                    else
+//                        labelTable[label.valString].nextList =
+//                                merge(labelTable[label.valString].nextList,
+//                                      nextQuad - offset);
+                    labelTable[label.valString].nextList =
+                            merge(nextQuad - offset,
+                                  labelTable[label.valString].nextList);
+                }
+
+                generateIntermediateCode("j", "-", false, "-", false, address);
+
+
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
             }
             else if (production == "S->whileM<<BEXPR>>doMS") {
                 //CORE:{36}【语义分析】while语句 S->whileM<<BEXPR>>doMS
