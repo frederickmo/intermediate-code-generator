@@ -591,7 +591,24 @@ void SemanticAnalyzer::generateLALRTable() {
     ActionTable[22][VtToIndex["else"]] = REDUCE_BASE + 23;
     ActionTable[24][VtToIndex["else"]] = REDUCE_BASE + 43;
     ActionTable[25][VtToIndex["else"]] = REDUCE_BASE + 15;
+    ActionTable[43][VtToIndex["else"]] = REDUCE_BASE + 39;
     ActionTable[109][VtToIndex["else"]] = REDUCE_BASE + 1;
+    ActionTable[135][VtToIndex["else"]] = REDUCE_BASE + 14;
+
+//    ActionTable[379][VtToIndex["goto"]] = REDUCE_BASE + 41;
+//    ActionTable[379][VtToIndex["null"]] = ERROR;
+
+
+//    ActionTable[13][VtToIndex["goto"]] = REDUCE_BASE + 17;
+//    ActionTable[21][VtToIndex["goto"]] = REDUCE_BASE + 13;
+//    ActionTable[22][VtToIndex["goto"]] = REDUCE_BASE + 23;
+//    ActionTable[24][VtToIndex["goto"]] = REDUCE_BASE + 43;
+//    ActionTable[25][VtToIndex["goto"]] = REDUCE_BASE + 15;
+//    ActionTable[78][VtToIndex["goto"]] = REDUCE_BASE + 24;
+//    ActionTable[127][VtToIndex["goto"]] = REDUCE_BASE + 4;
+//    ActionTable[135][VtToIndex["goto"]] = REDUCE_BASE + 14;
+//    ActionTable[145][VtToIndex["goto"]] = REDUCE_BASE + 16;
+//    ActionTable[152][VtToIndex["goto"]] = REDUCE_BASE + 44;
 
 
 //    GotoTable[0][VnToIndex["S"]] = 28;

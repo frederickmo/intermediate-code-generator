@@ -1,1 +1,2 @@
-{goto a; goto a; goto a; goto a; a: b:=c}
+{l: a:=1; while b <= (c+(-d*5)) do if h=5 then goto l else call f(a, b)}
+
