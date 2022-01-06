@@ -584,17 +584,19 @@ void SemanticAnalyzer::generateLALRTable() {
 //    printStateTable();
 
     // FIXME:不知道为什么ACTION表的else列有点问题……这里人为做了修正。
+
     ActionTable[6][VtToIndex["else"]] = REDUCE_BASE + 34;
     ActionTable[13][VtToIndex["else"]] = REDUCE_BASE + 17;
     ActionTable[21][VtToIndex["else"]] = REDUCE_BASE + 13;
     ActionTable[22][VtToIndex["else"]] = REDUCE_BASE + 23;
     ActionTable[24][VtToIndex["else"]] = REDUCE_BASE + 43;
     ActionTable[25][VtToIndex["else"]] = REDUCE_BASE + 15;
-    ActionTable[77][VtToIndex["else"]] = REDUCE_BASE + 24;
-    ActionTable[108][VtToIndex["else"]] = REDUCE_BASE + 1;
-    ActionTable[134][VtToIndex["else"]] = REDUCE_BASE + 14;
-    ActionTable[144][VtToIndex["else"]] = REDUCE_BASE + 16;
-    ActionTable[151][VtToIndex["else"]] = REDUCE_BASE + 44;
+    ActionTable[109][VtToIndex["else"]] = REDUCE_BASE + 1;
+
+
+//    GotoTable[0][VnToIndex["S"]] = 28;
+//    GotoTable[0][VnToIndex["L"]] = 27;
+//    ActionTable[246][VtToIndex["#"]] = REDUCE_BASE + 18;
     printStateTableToFile("amended_LALR_state_table.csv");
 }
 

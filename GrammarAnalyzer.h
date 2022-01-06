@@ -72,7 +72,7 @@ const vector<string> productionTable = {
 /*35*/            "S->{L}",
 /*36*/            "S->whileM<<BEXPR>>doMS",
 /*37*/            "S->call<<ID>>(<<ELIST>>)",
-/*38*/            "S->labelS",
+/*38*/            "S-><<LABEL>>S",
 /*39*/            "S->goto<<ID>>",
 
 /*40*/            "<<START>>-><<STMT>>",

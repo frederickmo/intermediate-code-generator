@@ -12,10 +12,12 @@
 
 using std::stack;
 using std::string;
+using std::pair;
 
 class newQuadruple;
 class Quadruple;
 class Symbol;
+class Label;
 
 vector<newQuadruple> newQuadrupleList;
 
@@ -25,6 +27,7 @@ const int offset = 100;
 int nextQuad = 0 + offset;
 vector<int> addresses; // 四元式地址表
 vector<Symbol> symbolTable;
+map<string, Label> labelTable;
 map<string, int> entry;
 int tempVariableCount = 0;
 
@@ -42,6 +45,13 @@ public:
     int quad{-1}; // 下一条语句的地址
 
     static Symbol generateNewTempVar();
+};
+
+class Label {
+public:
+    bool isDefined = false; // 是否已定义
+    int quad; // 跳转地址
+    int nextList = -1; // 待回填地址
 };
 
 struct Quadruple {
@@ -280,6 +290,15 @@ void QuadrupleTranslator::backPatch(int listHead, int quad) {
         tmpIndex = nextQuadrupleIndex;
     } while (tmpIndex != 0);
 
+//    while (tmpIndex != 0) {
+//        // 目前正在回填的四元式的第四位即下一个需要回填的四元式的序号
+//        int nextQuadrupleIndex = newQuadrupleList.at(tmpIndex).resultIndex;
+//        // 回填操作
+//        newQuadrupleList.at(tmpIndex).resultIndex = quad;
+//        // 更新寻找下一条
+//        tmpIndex = nextQuadrupleIndex;
+//    }
+
 }
 
 void QuadrupleTranslator::checkError(int pos) {
@@ -346,6 +365,7 @@ void QuadrupleTranslator::parse() {
         cout << "";
 
         // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
+        // FIXME:  是不是应该只有shift才读空字？
         if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
         !(lexicalTable[inputPointer].token == "#")) {
             // 如果该状态一行可以读空字且下一个符号不是结束符#，则读入一个空字
@@ -653,6 +673,7 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
             } else if (production == "S->A"
+            || production == "L->S"
             || production == "<<STMT>>->S"
             || production == "<<START>>-><<STMT>>"
             || production == "<<STMT>>-><<OPENSTMT>>") {
@@ -683,6 +704,15 @@ void QuadrupleTranslator::parse() {
                 symbolStack.top().valString = statement.valString;
                 symbolStack.top().trueExit = statement.trueExit;
                 symbolStack.top().falseExit = statement.falseExit;
+
+                if (production == "S->A") {
+                    // TODO: 这里和N规约的语义动作是一样的
+                    // => FIXME: 修正:我觉得你啥也不做就行(PPT上的makelist动作把我害惨了= =)
+//                    symbolStack.top().nextList = nextQuad - offset;
+                } else if (production == "L->S") {
+                    symbolStack.top().nextList = statement.nextList;
+                }
+
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -921,7 +951,85 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
 
-            } else if (production == "S->whileM<<BEXPR>>doMS") {
+            } else if (production == "L->L;MS") {
+                //CORE:{18}
+
+                Symbol L, M, statement;
+                for(int count = 0; count < 4; ++count) {
+                    if (count == 0)
+                        symbolStack.top() = statement;
+                    else if (count == 1)
+                        symbolStack.top() = M;
+                    else if (count == 3)
+                        symbolStack.top() = L;
+                    symbolStack.pop();
+                    stateStack.pop();
+                }
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                backPatch(L.nextList, M.quad);
+                L.nextList = statement.nextList;
+
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+
+            } else if (production == "S->{L}") {
+                //CORE:{35}
+
+                Symbol L;
+                for (int count = 0; count < 3; ++count) {
+                    if (count == 1)
+                        L = symbolStack.top();
+                    symbolStack.pop();
+                    stateStack.pop();
+                }
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                symbolStack.top().nextList = L.nextList;
+
+                // 调试用
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "<<LABEL>>-><<ID>>:") {
+                // CORE:{20} LABEL语句
+                symbolStack.pop();
+                stateStack.pop();
+                Symbol label = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+
+                // label分三种情况：
+                // ① label已定义(已有跳转地址，重新赋跳转地址)则报错
+                // ② label已在符号表中，但是没有地址，赋地址
+                //      (这是先有goto label再label: ...的情况)
+                // ③ label不在符号表中，加入符号表
+                //      (这是现有label: ...的情况)
+                if (labelTable.count(label.name) != 0) {
+                    if (labelTable[label.name].isDefined) {
+                        std::cerr << "重复定义label\n";
+                        checkError(0);
+                    } else {
+                        // 这里是已经有goto该label但是label本身还没有定义
+                        labelTable[label.name].quad = nextQuad;
+                        backPatch(labelTable[label.name].nextList, nextQuad);
+                    }
+                } else {
+                    // 还没有别的四元式goto到该label，所以先赋一个地址
+                    labelTable[label.name].quad = nextQuad;
+                }
+            }
+            else if (production == "S->whileM<<BEXPR>>doMS") {
                 //CORE:{36}【语义分析】while语句
 
                 // 一共需要
