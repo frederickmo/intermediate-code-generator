@@ -381,9 +381,14 @@ void QuadrupleTranslator::parse() {
         // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
         // FIXME:  是不是应该只有shift才读空字？
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         if (ActionTable[curState][VtToIndexMap["null"]] != ERROR &&
             !(lexicalTable[inputPointer].token == "#")) {
+=======
+        if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
+        !(lexicalTable[inputPointer].token == "#")) {
+>>>>>>> parent of 30ad1b1 (更新)
 =======
         if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
         !(lexicalTable[inputPointer].token == "#")) {
@@ -794,6 +799,10 @@ void QuadrupleTranslator::parse() {
                 curState = stateStack.top();
                 stateStack.push(
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 30ad1b1 (更新)
 
 
                 generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString,
@@ -1110,6 +1119,11 @@ void QuadrupleTranslator::parse() {
                 curState = stateStack.top();
                 stateStack.push(
                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> parent of 30ad1b1 (更新)
 
 
                 int address = -1;

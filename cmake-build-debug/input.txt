@@ -1,6 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 {l: b:=c; if a then b:=1 else goto l}
+=======
+{l: a:=1; while b <= (c+(-d*5)) do if h=5 then goto l else call f(a, b)}
+
+>>>>>>> parent of 30ad1b1 (更新)
 =======
 {l: a:=1; while b <= (c+(-d*5)) do if h=5 then goto l else call f(a, b)}
 
