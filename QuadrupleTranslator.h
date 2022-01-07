@@ -15,9 +15,13 @@ using std::string;
 using std::pair;
 
 class newQuadruple;
+
 class Quadruple;
+
 class Symbol;
+
 class Label;
+
 class Procedure;
 
 vector<newQuadruple> newQuadrupleList;
@@ -99,25 +103,25 @@ public:
     string procedure;
 
     newQuadruple(string op, string arg1, bool isArg1Integer, string resultName) :
-    op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
-    resultName(std::move(resultName)), hasArg2(false) {}
+            op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
+            resultName(std::move(resultName)), hasArg2(false) {}
 
     newQuadruple(string op, string arg1, bool isArg1Integer,
                  string arg2, bool isArg2Integer, string resultName) :
-                 op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
-                 arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
+            op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
+            arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
 
     newQuadruple(string op, bool isAssignment,
                  string arg1, int arg1Index, bool isArg1Integer,
                  string arg2, int arg2Index, bool isArg2Integer,
                  string resultName, int resultIndex) :
-                 op(std::move(op)), isAssignment(isAssignment),
-                 arg1(std::move(arg1)), arg1Index(arg1Index), isArg1Integer(isArg1Integer),
-                 arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
-                 resultName(std::move(resultName)), resultIndex(resultIndex) {}
+            op(std::move(op)), isAssignment(isAssignment),
+            arg1(std::move(arg1)), arg1Index(arg1Index), isArg1Integer(isArg1Integer),
+            arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
+            resultName(std::move(resultName)), resultIndex(resultIndex) {}
 
     newQuadruple(bool isProcedureCall, string procedure) :
-    isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
+            isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
 
     void print() const {
         if (isProcedureCall)
@@ -159,9 +163,10 @@ public:
         else if (isAssignment) {
             if (hasArg2)
                 cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
-                << (isArg2Integer ? "#" : "") << arg2 << ", " << resultName << ")" << endl;
+                     << (isArg2Integer ? "#" : "") << arg2 << ", " << resultName << ")" << endl;
             else if (op == "uminus")
-                cout << "(" << "uminus" << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
+                cout << "(" << "uminus" << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")"
+                     << endl;
             else
                 cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
         } else {
@@ -176,17 +181,21 @@ public:
 
 Symbol Symbol::generateNewTempVar() {
     tempVariableCount++;
-    return Symbol{"T"+std::to_string(tempVariableCount)};
+    return Symbol{"T" + std::to_string(tempVariableCount)};
 }
 
 class QuadrupleTranslator {
 public:
 
-    static void generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex);
+    static void generateIntermediateCode(const string &op, const string &arg1, bool isArg1Integer, const string &arg2,
+                                         bool isArg2Integer, int resultIndex);
 
-    static void generateSingleArgThreeAddressCode(const string& result, const string& op, const string& arg, bool isArgInteger);
+    static void
+    generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger);
 
-    static void generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer);
+    static void
+    generateDoubleArgThreeAddressCode(const string &result, const string &op, const string &arg1, bool isArg1Integer,
+                                      const string &arg2, bool isArg2Integer);
 
     static void generateProcedureCall(bool isProcedureCall, string procedure);
 
@@ -206,24 +215,28 @@ public:
     static void lex();
 };
 
-void QuadrupleTranslator::generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex) {
+void QuadrupleTranslator::generateIntermediateCode(const string &op, const string &arg1, bool isArg1Integer,
+                                                   const string &arg2, bool isArg2Integer, int resultIndex) {
 //    quadrupleList.push_back(Quadruple{op, arg1, arg2, resultIndex});
 //    string result = std::to_string(resultIndex);
 //    quadrupleOrTAC.push_back("(" + op + ", " + arg1 + ", " + arg2 + ", " + result + ")");
-    newQuadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer, std::to_string(resultIndex), resultIndex);
+    newQuadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer,
+                           std::to_string(resultIndex), resultIndex);
     newQuadrupleList.push_back(quadruple);
     nextQuad++;
 }
 
-void QuadrupleTranslator::generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1,
-                                                            bool isArg1Integer,  const string& arg2, bool isArg2Integer) {
+void QuadrupleTranslator::generateDoubleArgThreeAddressCode(const string &result, const string &op, const string &arg1,
+                                                            bool isArg1Integer, const string &arg2,
+                                                            bool isArg2Integer) {
 //    quadrupleOrTAC.push_back(result + " := " + expression);
     newQuadruple quadruple(op, arg1, isArg1Integer, arg2, isArg2Integer, result);
     newQuadrupleList.push_back(quadruple);
     ++nextQuad;
 }
 
-void QuadrupleTranslator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger) {
+void QuadrupleTranslator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg,
+                                                            bool isArgInteger) {
     newQuadruple quadruple(op, arg, isArgInteger, result);
     newQuadrupleList.push_back(quadruple);
     ++nextQuad;
@@ -244,8 +257,7 @@ int QuadrupleTranslator::merge(int listHead1, int listHead2) {
             return listHead2;
         else if (listHead1 != -1)
             return listHead1;
-    }
-    else {
+    } else {
         // 递归寻找表头：每个跳转四元式的第四位在填写真正的跳转地址前，
         // 填写的是等待被回填的所有四元式组成的链表中的上一个四元式的序号。
         // 该链表的表头因为没有上一个四元式了，所以第四位填写的是第一个地址即offset，
@@ -313,30 +325,30 @@ void QuadrupleTranslator::checkError(int pos) {
     exit(0);
 }
 
-static void printStateStack(const stack<int>& stateStack) {
+static void printStateStack(const stack<int> &stateStack) {
     cout << "状态栈 ";
     stack<int> copy = stateStack;
     stack<int> reversed;
-    while(!copy.empty()) {
+    while (!copy.empty()) {
         reversed.push(copy.top());
         copy.pop();
     }
-    while(!reversed.empty()) {
+    while (!reversed.empty()) {
         cout << reversed.top() << " ";
         reversed.pop();
     }
     cout << endl;
 }
 
-static void printSymbolStack(const stack<Symbol>& symbolStack) {
+static void printSymbolStack(const stack<Symbol> &symbolStack) {
     cout << "符号栈 ";
     stack<Symbol> copy = symbolStack;
     stack<Symbol> reversed;
-    while(!copy.empty()) {
+    while (!copy.empty()) {
         reversed.push(copy.top());
         copy.pop();
     }
-    while(!reversed.empty()) {
+    while (!reversed.empty()) {
         cout << reversed.top().name << " ";
         reversed.pop();
     }
@@ -356,7 +368,7 @@ void QuadrupleTranslator::parse() {
 //    generateIntermediateCode("j", "-", "-", offset);
     int oldPointer = -1; // 存入上一次操作的输入串指针
 
-    while(!symbolStack.empty()) {
+    while (!symbolStack.empty()) {
         // 取状态栈栈顶的状态进行判断
         int curState = stateStack.top();
         // 读取输入串的下一个字符
@@ -368,6 +380,7 @@ void QuadrupleTranslator::parse() {
 
         // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
         // FIXME:  是不是应该只有shift才读空字？
+
         if (ActionTable[curState][VtToIndexMap["null"]] != ERROR &&
             !(lexicalTable[inputPointer].token == "#")) {
             // 如果该状态一行可以读空字且下一个符号不是结束符#，则读入一个空字
@@ -457,7 +470,7 @@ void QuadrupleTranslator::parse() {
 //                    cout << "当前被归约的ID的valstring:" << topSymbol.valString << endl;
                     if (labelTable.count(topSymbol.valString) != 0) {
                         std::cerr << "变量 " << topSymbol.valString
-                        << " 已被定义为label标识符\n";
+                                  << " 已被定义为label标识符\n";
                         checkError(0);
                     } else {
                         variableTable[topSymbol.valString]++;
@@ -505,7 +518,7 @@ void QuadrupleTranslator::parse() {
                 // TODO: TAG
                 symbolStack.top().valString = semanticStack.top();
                 bool isIncluded = false;
-                for (const auto& symbol : symbolTable) {
+                for (const auto &symbol : symbolTable) {
                     if (symbol.name == symbolStack.top().name) {
                         symbolStack.top().isInteger = symbol.isInteger;
                         isIncluded = true;
@@ -519,11 +532,11 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
             } else if (production == "<<RELOP>>->="
-            || production == "<<RELOP>>->!="
-            || production == "<<RELOP>>-><"
-            || production == "<<RELOP>>-><="
-            || production == "<<RELOP>>->>"
-            || production == "<<RELOP>>->>=") {
+                       || production == "<<RELOP>>->!="
+                       || production == "<<RELOP>>-><"
+                       || production == "<<RELOP>>-><="
+                       || production == "<<RELOP>>->>"
+                       || production == "<<RELOP>>->>=") {
                 /**
                  * CORE:{27,28,29,30,31,32}【语义处理】读取关系运算符
                  */
@@ -619,7 +632,7 @@ void QuadrupleTranslator::parse() {
                 string place2str = std::to_string(expression2.place);
                 generateIntermediateCode("j" + relop.valString, expression1.valString,
                                          expression1.isInteger, expression2.valString, expression2.isInteger, 0);
-                generateIntermediateCode("j", "-", false, "-", false,0);
+                generateIntermediateCode("j", "-", false, "-", false, 0);
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
@@ -686,10 +699,10 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
             } else if (production == "S->A"
-            || production == "L->S"
-            || production == "<<STMT>>->S"
-            || production == "<<START>>-><<STMT>>"
-            || production == "<<STMT>>-><<OPENSTMT>>") {
+                       || production == "L->S"
+                       || production == "<<STMT>>->S"
+                       || production == "<<START>>-><<STMT>>"
+                       || production == "<<STMT>>-><<OPENSTMT>>") {
                 /**
                  * S->A => 从assignment(赋值语句)归约到statement(一般语句)
                  * <<STMT>>->S => 从一般语句规约到一般的语句(stmt还包含open_stmt)
@@ -731,7 +744,7 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
             } else if (production == "<<EXPR>>-><<EXPR>>+<<TERM>>"
-            || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
+                       || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
                 // CORE:{14,44}     【语义处理】算术运算：从'+'运算归约到表达式(expression) or 从'*"运算归约到表达式
 
                 Symbol expression1, expression2;
@@ -776,7 +789,6 @@ void QuadrupleTranslator::parse() {
                 curState = stateStack.top();
                 stateStack.push(
                         GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
-
 
 
                 generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString,
@@ -841,8 +853,8 @@ void QuadrupleTranslator::parse() {
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
             } else if (production == "<<BEXPR>>-><<BAND>>"
-            || production == "<<BAND>>-><<BNOT>>"
-            || production == "<<BNOT>>-><<BCMP>>") {
+                       || production == "<<BAND>>-><<BNOT>>"
+                       || production == "<<BNOT>>-><<BCMP>>") {
                 // CORE: {2,7,9}【语义分析】布尔表达式递归归约
 
                 // 记录产生式右部符号
@@ -869,7 +881,7 @@ void QuadrupleTranslator::parse() {
                 // CORE:{25}【语义分析】if E then M S 条件语句
                 // 符号栈和状态栈弹出五次，记录BEXPR, M和STMT
                 Symbol booleanExpression, M, statement;
-                for(int count = 0; count < 5; ++count) {
+                for (int count = 0; count < 5; ++count) {
                     if (count == 0)
                         statement = symbolStack.top();
                     else if (count == 1)
@@ -896,7 +908,7 @@ void QuadrupleTranslator::parse() {
                 printSymbolStack(symbolStack);
 
             } else if (production == "S->if<<BEXPR>>thenMSNelseMS"
-            || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
+                       || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
                 // CORE:{26,33}【语义分析】if then else语句的翻译
 
                 // 一共9个符号：一共需要弹出9次
@@ -933,7 +945,7 @@ void QuadrupleTranslator::parse() {
                 printSymbolStack(symbolStack);
 
             } else if (production == "M->null"
-            || production == "N->null") {
+                       || production == "N->null") {
                 //CORE{21,22}【语义分析】规约为空字
 
                 // 符号栈不需要弹出任何符号，而是直接凭空读进去一个M或者N
@@ -968,7 +980,7 @@ void QuadrupleTranslator::parse() {
                 //CORE:{18}
 
                 Symbol L, M, statement;
-                for(int count = 0; count < 4; ++count) {
+                for (int count = 0; count < 4; ++count) {
                     if (count == 0)
                         symbolStack.top() = statement;
                     else if (count == 1)
@@ -1027,7 +1039,7 @@ void QuadrupleTranslator::parse() {
                 // ATTENTION:如果label已经被定义为variable则报错
                 if (variableTable[label.valString] != 0) {
                     std::cerr << "label标识符 "
-                    << label.valString << " 已被定义为变量\n";
+                              << label.valString << " 已被定义为变量\n";
                     checkError(0);
                 }
 
@@ -1095,8 +1107,6 @@ void QuadrupleTranslator::parse() {
                         GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
 
-
-
                 int address = -1;
 //                cout << "第一次出现goto:" << label.valString << " " << labelTable.count(label.valString) << endl;
                 if (labelTable.count(label.valString) == 0) {
@@ -1112,14 +1122,14 @@ void QuadrupleTranslator::parse() {
                         address = labelTable[label.valString].quad;
 //                        newQuadrupleList.back().resultIndex = labelTable[label.valString].quad;
                     }
-                    // 否则将该地址添加到label的nextList里
+                        // 否则将该地址添加到label的nextList里
                     else
 //                        labelTable[label.valString].nextList =
 //                                merge(labelTable[label.valString].nextList,
 //                                      nextQuad - offset);
-                    labelTable[label.valString].nextList =
-                            merge(nextQuad - offset,
-                                  labelTable[label.valString].nextList);
+                        labelTable[label.valString].nextList =
+                                merge(nextQuad - offset,
+                                      labelTable[label.valString].nextList);
                 }
 
                 generateIntermediateCode("j", "-", false, "-", false, address);
@@ -1129,8 +1139,7 @@ void QuadrupleTranslator::parse() {
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
                 printStateStack(stateStack);
                 printSymbolStack(symbolStack);
-            }
-            else if (production == "S->whileM<<BEXPR>>doMS") {
+            } else if (production == "S->whileM<<BEXPR>>doMS") {
                 //CORE:{36}【语义分析】while语句 S->whileM<<BEXPR>>doMS
 
                 // 一共6个符号：一共需要弹出6次
@@ -1183,7 +1192,7 @@ void QuadrupleTranslator::parse() {
 
                 Procedure function = procedureList.back();
                 function.name = id.valString;
-                for (const auto& param : function.parameters)
+                for (const auto &param : function.parameters)
                     generateProcedureCall(true, "param " + param);
                 generateProcedureCall(true, "call " + function.name);
 
@@ -1232,6 +1241,93 @@ void QuadrupleTranslator::parse() {
                 printSymbolStack(symbolStack);
 
             }
+                /*
+                 * and, not,or的规约
+                 */
+            else if (production == "<<BNOT>>->not<<BNOT>>") {
+                Symbol current = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+                symbolStack.pop();
+                stateStack.pop();
+
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                symbolStack.top().trueExit = current.falseExit;
+                symbolStack.top().falseExit = current.trueExit;
+
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "<<BAND>>-><<BAND>>andM<<BNOT>>") {
+                Symbol bool1, bool2, M;
+
+                bool2 = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+
+                M = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+
+                //and
+                symbolStack.pop();
+                stateStack.pop();
+
+                bool1 = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                backPatch(bool1.trueExit, M.quad);
+                symbolStack.top().trueExit = bool2.trueExit;
+                symbolStack.top().falseExit = merge(bool1.falseExit, bool2.falseExit);
+
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            } else if (production == "<<BEXPR>>-><<BEXPR>>orM<<BAND>>") {
+                Symbol bool1, bool2, M;
+
+                bool2 = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+                M = symbolStack.top();
+
+                symbolStack.pop();
+                stateStack.pop();
+
+                //or
+                symbolStack.pop();
+                stateStack.pop();
+
+                bool1 = symbolStack.top();
+                symbolStack.pop();
+                stateStack.pop();
+
+
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+
+                backPatch(bool1.falseExit, M.quad);
+                symbolStack.top().trueExit = merge(bool1.trueExit, bool2.trueExit);
+                symbolStack.top().falseExit = bool2.falseExit;
+
+                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
+                printStateStack(stateStack);
+                printSymbolStack(symbolStack);
+            }
         } else if (isAcceptTerm(curSymbolIndex)) {
             // 接受状态
             cout << endl << "ACCEPT" << endl << endl;
@@ -1259,7 +1355,7 @@ void QuadrupleTranslator::lex() {
     }
 
     cout << "\nlexical table: \n";
-    for (const auto& word : lexicalTable)
+    for (const auto &word : lexicalTable)
         word.print();
 
 }

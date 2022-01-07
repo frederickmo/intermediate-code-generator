@@ -1,1 +1,2 @@
+
 {l: b:=c; if a then b:=1 else goto l}
