@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/GrammarAnalyzer.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/GrammarAnalyzer.h
 Tokenizer.h
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Tokenizer.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Tokenizer.h
 map
 -
 set
@@ -16,25 +16,21 @@ set
 algorithm
 -
 
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Keywords.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Keywords.h
 vector
 -
 string
 -
 
-<<<<<<< Updated upstream
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h
-=======
 /Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleGenerator.h
->>>>>>> Stashed changes
 utility
 -
 stack
 -
 SemanticAnalyzer.h
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/SemanticAnalyzer.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/SemanticAnalyzer.h
 
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/SemanticAnalyzer.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/SemanticAnalyzer.h
 utility
 -
 queue
@@ -44,23 +40,17 @@ fstream
 sstream
 -
 GrammarAnalyzer.h
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/GrammarAnalyzer.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/GrammarAnalyzer.h
 
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Tokenizer.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Tokenizer.h
 Keywords.h
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Keywords.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Keywords.h
 vector
 -
 iostream
 -
 
-<<<<<<< Updated upstream
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/main.cpp
-QuadrupleTranslator.h
-C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h
-=======
 /Users/frederickmo/Documents/GitHub/intermediate-code-generator/main.cpp
 QuadrupleGenerator.h
 /Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleGenerator.h
->>>>>>> Stashed changes
 

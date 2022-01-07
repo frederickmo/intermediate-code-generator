@@ -14,11 +14,6 @@ using std::stack;
 using std::string;
 using std::pair;
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-class newQuadruple;
-
-=======
->>>>>>> Stashed changes:QuadrupleGenerator.h
 class Quadruple;
 
 class Symbol;
@@ -27,7 +22,7 @@ class Label;
 
 class Procedure;
 
-vector<Quadruple> newQuadrupleList;
+vector<Quadruple> QuadrupleList;
 
 const int offset = 100;
 int nextQuad = 0 + offset;
@@ -85,17 +80,16 @@ public:
     bool isProcedureCall = false;
     string procedure;
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-    newQuadruple(string op, string arg1, bool isArg1Integer, string resultName) :
+    Quadruple(string op, string arg1, bool isArg1Integer, string resultName) :
             op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
             resultName(std::move(resultName)), hasArg2(false) {}
 
-    newQuadruple(string op, string arg1, bool isArg1Integer,
+    Quadruple(string op, string arg1, bool isArg1Integer,
                  string arg2, bool isArg2Integer, string resultName) :
             op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
             arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
 
-    newQuadruple(string op, bool isAssignment,
+    Quadruple(string op, bool isAssignment,
                  string arg1, int arg1Index, bool isArg1Integer,
                  string arg2, int arg2Index, bool isArg2Integer,
                  string resultName, int resultIndex) :
@@ -104,30 +98,8 @@ public:
             arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
             resultName(std::move(resultName)), resultIndex(resultIndex) {}
 
-    newQuadruple(bool isProcedureCall, string procedure) :
-            isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
-=======
-    Quadruple(string op, string arg1, bool isArg1Integer, string resultName) :
-    op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
-    resultName(std::move(resultName)), hasArg2(false) {}
-
-    Quadruple(string op, string arg1, bool isArg1Integer,
-              string arg2, bool isArg2Integer, string resultName) :
-                 op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
-                 arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
-
-    Quadruple(string op, bool isAssignment,
-              string arg1, int arg1Index, bool isArg1Integer,
-              string arg2, int arg2Index, bool isArg2Integer,
-              string resultName, int resultIndex) :
-                 op(std::move(op)), isAssignment(isAssignment),
-                 arg1(std::move(arg1)), arg1Index(arg1Index), isArg1Integer(isArg1Integer),
-                 arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
-                 resultName(std::move(resultName)), resultIndex(resultIndex) {}
-
     Quadruple(bool isProcedureCall, string procedure) :
-    isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
->>>>>>> Stashed changes:QuadrupleGenerator.h
+            isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
 
     void print() const {
         if (isProcedureCall)
@@ -193,17 +165,6 @@ Symbol Symbol::generateNewTempVar() {
 class QuadrupleGenerator {
 public:
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-    static void generateIntermediateCode(const string &op, const string &arg1, bool isArg1Integer, const string &arg2,
-                                         bool isArg2Integer, int resultIndex);
-
-    static void
-    generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger);
-
-    static void
-    generateDoubleArgThreeAddressCode(const string &result, const string &op, const string &arg1, bool isArg1Integer,
-                                      const string &arg2, bool isArg2Integer);
-=======
     // 产生跳转语句
     static void generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex);
 
@@ -212,7 +173,6 @@ public:
 
     // 产生二元计算的赋值语句
     static void generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer);
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
     // 产生过程调用语句
     static void generateProcedureCall(bool isProcedureCall, string procedure);
@@ -240,54 +200,29 @@ public:
     static void printQuadruples(int choice);
 };
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-void QuadrupleTranslator::generateIntermediateCode(const string &op, const string &arg1, bool isArg1Integer,
-                                                   const string &arg2, bool isArg2Integer, int resultIndex) {
-//    quadrupleList.push_back(Quadruple{op, arg1, arg2, resultIndex});
-//    string result = std::to_string(resultIndex);
-//    quadrupleOrTAC.push_back("(" + op + ", " + arg1 + ", " + arg2 + ", " + result + ")");
-    newQuadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer,
-                           std::to_string(resultIndex), resultIndex);
-=======
 void QuadrupleGenerator::generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex) {
-//    quadrupleList.push_back(Quadruple{op, arg1, arg2, resultIndex});
-//    string result = std::to_string(resultIndex);
-//    quadrupleOrTAC.push_back("(" + op + ", " + arg1 + ", " + arg2 + ", " + result + ")");
     Quadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer, std::to_string(resultIndex), resultIndex);
->>>>>>> Stashed changes:QuadrupleGenerator.h
-    newQuadrupleList.push_back(quadruple);
+    QuadrupleList.push_back(quadruple);
     nextQuad++;
 }
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-void QuadrupleTranslator::generateDoubleArgThreeAddressCode(const string &result, const string &op, const string &arg1,
-                                                            bool isArg1Integer, const string &arg2,
-                                                            bool isArg2Integer) {
-=======
 void QuadrupleGenerator::generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1,
                                                             bool isArg1Integer,  const string& arg2, bool isArg2Integer) {
->>>>>>> Stashed changes:QuadrupleGenerator.h
 //    quadrupleOrTAC.push_back(result + " := " + expression);
     Quadruple quadruple(op, arg1, isArg1Integer, arg2, isArg2Integer, result);
-    newQuadrupleList.push_back(quadruple);
+    QuadrupleList.push_back(quadruple);
     ++nextQuad;
 }
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-void QuadrupleTranslator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg,
-                                                            bool isArgInteger) {
-    newQuadruple quadruple(op, arg, isArgInteger, result);
-=======
 void QuadrupleGenerator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger) {
     Quadruple quadruple(op, arg, isArgInteger, result);
->>>>>>> Stashed changes:QuadrupleGenerator.h
-    newQuadrupleList.push_back(quadruple);
+    QuadrupleList.push_back(quadruple);
     ++nextQuad;
 }
 
 void QuadrupleGenerator::generateProcedureCall(bool isProcedureCall, string procedure) {
     Quadruple quadruple(isProcedureCall, std::move(procedure));
-    newQuadrupleList.push_back(quadruple);
+    QuadrupleList.push_back(quadruple);
     ++nextQuad;
 }
 
@@ -306,17 +241,17 @@ int QuadrupleGenerator::merge(int listHead1, int listHead2) {
         // 该链表的表头因为没有上一个四元式了，所以第四位填写的是第一个地址即offset，
         // 因此一直找到最后一位为offset的四元式，就是该链表的表头。
         int nextQuadIndex = listHead2;
-        while (newQuadrupleList.at(nextQuadIndex).resultIndex >= 0) {
-            nextQuadIndex = newQuadrupleList.at(nextQuadIndex).resultIndex;
+        while (QuadrupleList.at(nextQuadIndex).resultIndex >= 0) {
+            nextQuadIndex = QuadrupleList.at(nextQuadIndex).resultIndex;
         }
         // 此时tempHead指向的已经是表头，把表头指向的地址指向list1的链尾，完成合并操作。
-        newQuadrupleList.at(nextQuadIndex).resultIndex = listHead1;
+        QuadrupleList.at(nextQuadIndex).resultIndex = listHead1;
         return listHead2;
     }
 }
 
 int QuadrupleGenerator::merge(int listHead1, int listHead2, int listHead3) {
-    // 我想复杂了，调用二参数的merge递归一下就行了
+    // 调用二参数的merge递归
     return merge(listHead1, merge(listHead2, listHead3));
 }
 
@@ -338,9 +273,9 @@ void QuadrupleGenerator::backPatch(int listHead, int quad) {
 
     do {
         // 目前正在回填的四元式的第四位即下一个需要回填的四元式的序号
-        int nextQuadrupleIndex = newQuadrupleList.at(tmpIndex).resultIndex;
+        int nextQuadrupleIndex = QuadrupleList.at(tmpIndex).resultIndex;
         // 回填操作
-        newQuadrupleList.at(tmpIndex).resultIndex = quad;
+        QuadrupleList.at(tmpIndex).resultIndex = quad;
         // 更新寻找下一条
         tmpIndex = nextQuadrupleIndex;
     } while (tmpIndex >= 0);
@@ -410,24 +345,9 @@ void QuadrupleGenerator::parse(bool showDetail) {
         string nextSymbol = lexicalTable[inputPointer].token;
         cout << "";
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-        // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
-        // FIXME:  是不是应该只有shift才读空字？
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> Stashed changes:QuadrupleGenerator.h
         if (ActionTable[curState][VtToIndexMap["null"]] != ERROR &&
             !(lexicalTable[inputPointer].token == "#")) {
-=======
-        if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
-        !(lexicalTable[inputPointer].token == "#")) {
->>>>>>> parent of 30ad1b1 (更新)
-=======
-        if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
-        !(lexicalTable[inputPointer].token == "#")) {
->>>>>>> parent of 30ad1b1 (更新)
             // 如果该状态一行可以读空字且下一个符号不是结束符#，则读入一个空字
             symbolToRead = "null";
         } else {
@@ -465,7 +385,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
 
         // 变量或数字一起当做终结符i处理
         // 当前状态面临栈外输入串头部符号，ACTION表内的状态
-        int curSymbolIndex = ActionTable[curState][VtToIndex[symbolToRead]];
+        int curSymbolIndex = ActionTable[curState][VtToIndexMap[symbolToRead]];
 
         // 如果当前符号表位置为0(ERROR)，报错
         if (curSymbolIndex == ERROR) {
@@ -507,7 +427,6 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 Symbol topSymbol = symbolStack.top();
 
                 if (production == "<<FACTOR>>-><<ID>>") {
-//                    cout << "当前被归约的ID的valstring:" << topSymbol.valString << endl;
                     if (labelTable.count(topSymbol.valString) != 0) {
                         std::cerr << "变量 " << topSymbol.valString
                                   << " 已被定义为label标识符\n";
@@ -525,7 +444,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 curState = stateStack.top();
                 // 新状态进栈
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
                 symbolStack.top().place = topSymbol.place;
                 symbolStack.top().valString = topSymbol.valString;
                 symbolStack.top().isInteger = topSymbol.isInteger;
@@ -540,7 +459,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 curState = stateStack.top();
                 // 新状态进栈
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
                 // 记录为该符号的入口地址
 
                 // valString记录的是终结符i的名字，名字为了在调试过程中能看懂归约到哪一步了所以保持<<ID>>不变
@@ -558,30 +477,19 @@ void QuadrupleGenerator::parse(bool showDetail) {
                     symbolStack.top().isInteger = symbolTable.back().isInteger;
 
             } else if (production == "<<RELOP>>->="
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                       || production == "<<RELOP>>->!="
-                       || production == "<<RELOP>>-><"
-                       || production == "<<RELOP>>-><="
-                       || production == "<<RELOP>>->>"
-                       || production == "<<RELOP>>->>=") {
-                /**
-                 * CORE:{27,28,29,30,31,32}【语义处理】读取关系运算符
-                 */
-=======
             || production == "<<RELOP>>->!="
             || production == "<<RELOP>>-><"
             || production == "<<RELOP>>-><="
             || production == "<<RELOP>>->>"
             || production == "<<RELOP>>->>=") {
                  // 产生式27,28,29,30,31,32的归约
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
                 symbolStack.pop();
                 stateStack.pop();
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 symbolStack.top().val = semanticStack.top();
                 symbolStack.top().valString = reduceTerm.rightPart.at(0);
@@ -599,7 +507,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 symbolStack.top().trueExit = booleanExpr.trueExit;
                 symbolStack.top().falseExit = booleanExpr.falseExit;
@@ -613,7 +521,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 symbolStack.top().trueExit = nextQuad - offset;
                 symbolStack.top().falseExit = nextQuad + 1 - offset;
@@ -639,7 +547,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                  symbolStack.push(Symbol{reduceTerm.leftPart});
                  curState = stateStack.top();
                  stateStack.push(
-                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                         GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                  // 给出真假出口地址
                  symbolStack.top().trueExit = nextQuad - offset;
@@ -649,18 +557,9 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 string place1Str = std::to_string(expression1.place);
                 string place2str = std::to_string(expression2.place);
                 generateIntermediateCode("j" + relop.valString, expression1.valString,
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                                         expression1.isInteger, expression2.valString, expression2.isInteger, 0);
-                generateIntermediateCode("j", "-", false, "-", false, 0);
-                // 调试用
-                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
-                printStateStack(stateStack);
-                printSymbolStack(symbolStack);
-=======
                                          expression1.isInteger, expression2.valString, expression2.isInteger, -1);
                 generateIntermediateCode("j", "-", false, "-", false,-1);
 
->>>>>>> Stashed changes:QuadrupleGenerator.h
             } else if (production == "A-><<ID>>:=<<EXPR>>") {
                 // 产生式1的归约
 
@@ -687,7 +586,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
 
                 semanticStack.pop();
@@ -710,28 +609,12 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 generateSingleArgThreeAddressCode(id.valString, ":=", expression.valString, expression.isInteger);
 
             } else if (production == "S->A"
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                       || production == "L->S"
-                       || production == "<<STMT>>->S"
-                       || production == "<<START>>-><<STMT>>"
-                       || production == "<<STMT>>-><<OPENSTMT>>") {
-                /**
-                 * S->A => 从assignment(赋值语句)归约到statement(一般语句)
-                 * <<STMT>>->S => 从一般语句规约到一般的语句(stmt还包含open_stmt)
-                 * <<START>>-><<STMT>> => 反正开始也是一个语句，感觉也可以这样归约
-                 *
-                 * => 按照原版的 statement -> { statement }这样规约的。
-                 */
-
-                // CORE:{34,40,41}     【语义处理】从赋值语句(assignment)归约到一般语句(statement)再归约到开始符号
-=======
             || production == "L->S"
             || production == "<<STMT>>->S"
             || production == "<<START>>-><<STMT>>"
             || production == "<<STMT>>-><<OPENSTMT>>") {
                 // 产生式34,40,41的归约
 
->>>>>>> Stashed changes:QuadrupleGenerator.h
                 // 顶部语句
                 Symbol statement = symbolStack.top();
                 symbolStack.pop();
@@ -740,7 +623,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 symbolStack.top().place = statement.place;
                 symbolStack.top().val = statement.val;
@@ -752,13 +635,8 @@ void QuadrupleGenerator::parse(bool showDetail) {
                     symbolStack.top().nextList = statement.nextList;
 
             } else if (production == "<<EXPR>>-><<EXPR>>+<<TERM>>"
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                       || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
-                // CORE:{14,44}     【语义处理】算术运算：从'+'运算归约到表达式(expression) or 从'*"运算归约到表达式
-=======
             || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
                 // 产生式14，44的归约
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
                 Symbol expression1, expression2;
                 for (int count = 0; count < 3; ++count) {
@@ -787,12 +665,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(newLeft);
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 30ad1b1 (更新)
-
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString,
                                                   expression1.isInteger, expression2.valString, expression2.isInteger);
@@ -820,7 +693,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(newLeft);
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 generateSingleArgThreeAddressCode(tempVar.name, "uminus", expression.valString, expression.isInteger);
 
@@ -840,21 +713,15 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 curState = stateStack.top();
 
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 symbolStack.top().place = expression.place;
                 symbolStack.top().valString = expression.valString;
 
             } else if (production == "<<BEXPR>>-><<BAND>>"
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                       || production == "<<BAND>>-><<BNOT>>"
-                       || production == "<<BNOT>>-><<BCMP>>") {
-                // CORE: {2,7,9}【语义分析】布尔表达式递归归约
-=======
             || production == "<<BAND>>-><<BNOT>>"
             || production == "<<BNOT>>-><<BCMP>>") {
                 // 产生式2,7,9的归约
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
                 // 记录产生式右部符号
                 Symbol rightSymbol = symbolStack.top();
@@ -864,7 +731,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 // 布尔表达式，传递真假出口
                 symbolStack.top().trueExit = rightSymbol.trueExit;
@@ -891,20 +758,15 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 // 回填和合并链表
                 backPatch(booleanExpression.trueExit, M.quad);
                 symbolStack.top().nextList = merge(booleanExpression.falseExit, statement.nextList);
 
             } else if (production == "S->if<<BEXPR>>thenMSNelseMS"
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                       || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
-                // CORE:{26,33}【语义分析】if then else语句的翻译
-=======
             || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
                 // 产生式26，33的归约
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
                 // 一共9个符号：一共需要弹出9次
                 // if(8) <<BEXPR>>(7) then(6) M(5) S(4) N(3) else(2) M(1) S(0)
@@ -929,20 +791,15 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 backPatch(booleanExpr.trueExit, M1.quad);
                 backPatch(booleanExpr.falseExit, M2.quad);
                 symbolStack.top().nextList = merge(statement1.nextList, N.nextList, statement2.nextList);
 
             } else if (production == "M->null"
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-                       || production == "N->null") {
-                //CORE{21,22}【语义分析】规约为空字
-=======
             || production == "N->null") {
                 // 产生式21,22的归约
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
                 symbolStack.pop();
                 stateStack.pop();
@@ -950,7 +807,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 // 接下来是对于M和N的两种不同处理
                 // quad记录的是经偏移后的真实地址，
@@ -983,7 +840,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 backPatch(L.nextList, M.quad);
                 L.nextList = statement.nextList;
@@ -1002,7 +859,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 symbolStack.top().nextList = L.nextList;
 
@@ -1045,7 +902,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
             } else if (production == "S-><<LABEL>>S") {
                 // 产生式38的归约
@@ -1059,7 +916,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
             } else if (production == "S->goto<<ID>>") {
                 // 产生式39的归约
@@ -1073,12 +930,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
-<<<<<<< HEAD
-=======
-
-
->>>>>>> parent of 30ad1b1 (更新)
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
 
                 int address = -1;
@@ -1092,35 +944,16 @@ void QuadrupleGenerator::parse(bool showDetail) {
                     }
                         // 否则将该地址添加到label的nextList里
                     else
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-//                        labelTable[label.valString].nextList =
-//                                merge(labelTable[label.valString].nextList,
-//                                      nextQuad - offset);
-                        labelTable[label.valString].nextList =
-                                merge(nextQuad - offset,
-                                      labelTable[label.valString].nextList);
-=======
                     labelTable[label.valString].nextList =
                             merge(nextQuad - offset,
                                   labelTable[label.valString].nextList);
->>>>>>> Stashed changes:QuadrupleGenerator.h
                 }
 
                 generateIntermediateCode("j", "-", false, "-", false, address);
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-
-                // 调试用
-                cout << " => 规约后的新状态是 " << stateStack.top() << endl;
-                printStateStack(stateStack);
-                printSymbolStack(symbolStack);
-            } else if (production == "S->whileM<<BEXPR>>doMS") {
-                //CORE:{36}【语义分析】while语句 S->whileM<<BEXPR>>doMS
-=======
             }
             else if (production == "S->whileM<<BEXPR>>doMS") {
                 // 产生式36的归约
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
                 // 一共6个符号：一共需要弹出6次
                 // while(5) M(4) <<BEXPR>>(3) do(2) M(1) S(0)
@@ -1141,7 +974,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 //回填
                 backPatch(statement.nextList, M1.quad);
@@ -1164,7 +997,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 Procedure function = procedureList.back();
                 function.name = id.valString;
@@ -1182,7 +1015,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 Procedure procedure;
                 procedure.parameters.push_back(expr.valString);
@@ -1200,7 +1033,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
                 procedureList.back().parameters.push_back(expr.valString);
 
@@ -1314,11 +1147,6 @@ void QuadrupleGenerator::lex(bool showDetail) {
         locateInputCode.push_back(lexicalTableLength);
     }
 
-<<<<<<< Updated upstream:QuadrupleTranslator.h
-    cout << "\nlexical table: \n";
-    for (const auto &word : lexicalTable)
-        word.print();
-=======
     if (showDetail) {
         cout << "\nlexical table: \n";
         for (const auto& word : lexicalTable)
@@ -1333,7 +1161,7 @@ void QuadrupleGenerator::printQuadruples(int choice = 0) {
         default:
         case 0:
             cout << "四元式形式\n";
-            for (const auto& quadruple : newQuadrupleList) {
+            for (const auto& quadruple : QuadrupleList) {
                 cout << "(" << address << ") ";
                 quadruple.printAsQuadruple();
                 ++address;
@@ -1342,19 +1170,18 @@ void QuadrupleGenerator::printQuadruples(int choice = 0) {
             break;
         case 1:
             cout << "三地址代码形式\n";
-            for (const auto& quadruple : newQuadrupleList) {
+            for (const auto& quadruple : QuadrupleList) {
                 cout << "(" << address << ") ";
                 quadruple.printArgInName();
                 ++address;
             }
         case 2:
             cout << "四元式形式(变量以地址形式输出)\n";
-            for (const auto& quadruple : newQuadrupleList) {
+            for (const auto& quadruple : QuadrupleList) {
                 cout << "(" << address << ") ";
                 quadruple.print();
                 ++address;
             }
->>>>>>> Stashed changes:QuadrupleGenerator.h
 
 
     }

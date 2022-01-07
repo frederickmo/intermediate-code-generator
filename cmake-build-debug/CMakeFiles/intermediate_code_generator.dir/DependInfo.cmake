@@ -8,9 +8,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/main.cpp" "C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/CMakeFiles/intermediate_code_generator.dir/main.cpp.obj"
+  "/Users/frederickmo/Documents/GitHub/intermediate-code-generator/main.cpp" "/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/CMakeFiles/intermediate_code_generator.dir/main.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "GNU")
+set(CMAKE_CXX_COMPILER_ID "AppleClang")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
