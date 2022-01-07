@@ -5,11 +5,11 @@
 #ifndef INTERMEDIATE_CODE_GENERATOR_SEMANTICANALYZER_H
 #define INTERMEDIATE_CODE_GENERATOR_SEMANTICANALYZER_H
 
-#define ACCEPT_BASE 1000
-#define SHIFT_BASE 2000
-#define REDUCE_BASE 3000
-#define CEILING 4000
-#define ERROR 0
+#define ACCEPT_BASE 1000 // 接受状态基数
+#define SHIFT_BASE 2000 // 移进状态基数
+#define REDUCE_BASE 3000 // 归约状态基数
+#define CEILING 4000 // 上限
+#define ERROR 0 // 错误状态基数
 
 
 #include <utility>
@@ -20,6 +20,15 @@
 #include "GrammarAnalyzer.h"
 
 using std::queue;
+
+struct Term;
+
+static const int maxTermCount = 4000;
+vector<Term> stateSet[maxTermCount];
+int globalStateCount = 1;
+int ActionTable[maxTermCount][60];
+int GotoTable[maxTermCount][60];
+
 
 // 判断是否是移进项目
 static bool isShiftTerm(int index) {
@@ -46,37 +55,23 @@ static int getReduceStateIndex(int index) {
     return index - REDUCE_BASE;
 }
 
+// 项目的类型
 enum TYPE {
-    REDUCE,
-    SHIFT,
-    TO_REDUCE,
-    ACCEPT
-}type;
+    REDUCE, // 归约项目
+    SHIFT, // 移进项目
+    TO_REDUCE, // 待约项目
+    ACCEPT // 接受项目
+} type;
 
 // 项目集：移进项目/待约项目/规约项目
 struct Term {
-    TYPE type{};
+    TYPE type{}; // 项目类型
     string leftPart; // 左部
     vector<string> rightPart; // 右部
     int dotPos{-1}; // dotPos: 点在哪个符号前面，index就是谁
-    vector<string> subsequence; // 展望符
-    bool operator==(const Term& t) const {
-        if (leftPart == t.leftPart
-                && rightPart == t.rightPart
-                && dotPos == t.dotPos
-                && subsequence == t.subsequence)
-            return true;
-        else
-            return false;
-    }
+    vector<string> subsequence; // 展望符集合
+    bool operator==(const Term &t) const;
 };
-
-
-static const int maxTermCount = 4000;
-vector<Term> stateSet[maxTermCount];
-int globalStateCount = 1;
-int ActionTable[maxTermCount][60];
-int GotoTable[maxTermCount][60];
 
 
 class SemanticAnalyzer {
@@ -84,7 +79,7 @@ public:
 
     // 判断新生成的状态集是否可以和之前的状态集合并，
     // 若可以合并则返回状态集序号，不可合并返回-1
-    static int mergeSet() ;
+    static int mergeSet();
 
     // 分析第一个产生式，产生第一个状态集I0
     static void generateI0();
@@ -93,26 +88,38 @@ public:
     static void calculateClosure(int stateIndex);
 
     // 计算状态集遇到某符号应该转换到的新状态的序号
-    static int GOTO(int stateIndex, const string& symbol);
+    static int GOTO(int stateIndex, const string &symbol);
 
 
     void printStateSet();
 
     void printStateTable();
 
-    static void printStateTableToFile(const string& fileName);
+    static void printStateTableToFile(const string &fileName);
 
     // 输出纯数字表，读入方便
-    static void printStateTableToFilePureNumber(const string& fileName);
+    static void printStateTableToFilePureNumber(const string &fileName);
 
-    static void readStateTable(const string& fileName);
+    static void readStateTable(const string &fileName);
 
-    // 这里是用LR(1)分析法构造的状态集
+    // 生成LR(1)状态集
     static void generateStateSet(int choice = 0);
 
-    // 似乎LALR就是从LR(1)里合并了同心集就完了
+    // 合并LR(1)状态集中的同心集生成LALR状态转换表
     static void generateLALRTable();
 };
+
+
+bool Term::operator==(const Term &t) const {
+    if (leftPart == t.leftPart
+        && rightPart == t.rightPart
+        && dotPos == t.dotPos
+        && subsequence == t.subsequence)
+        return true;
+    else
+        return false;
+}
+
 
 int SemanticAnalyzer::mergeSet() {
     int flag = -1; // 默认不能合并
@@ -135,6 +142,7 @@ int SemanticAnalyzer::mergeSet() {
     return -1;
 }
 
+
 void SemanticAnalyzer::generateI0() {
     Term firstTerm;
     string X;
@@ -148,16 +156,17 @@ void SemanticAnalyzer::generateI0() {
     stateSet[0].push_back(firstTerm);
 }
 
+
 // 计算LR(0) / SLR / LR(1) 状态集的闭包
 void SemanticAnalyzer::calculateClosure(int stateIndex) {
 
     queue<Term> termQueue;
 
     // 先将状态集的所有状态入队列
-    for (auto & i : stateSet[stateIndex])
+    for (auto &i: stateSet[stateIndex])
         termQueue.push(i);
 
-    while(!termQueue.empty()) {
+    while (!termQueue.empty()) {
         Term curTerm = termQueue.front();
 
         // 点在最后 => 规约项，不会拉入新的项目，跳过
@@ -168,7 +177,7 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
 
         // 若点右边有非终结符，则将该非终结符在左边的产生式拉入项目集
         string newLeftPart = curTerm.rightPart[curTerm.dotPos];
-        for (auto & j : productionTable) {
+        for (auto &j: productionTable) {
             // newLeftPart不是该产生式的左部，continue
             string vn = GrammarAnalyzer::getVn(j.substr(0, j.length()));
             if (newLeftPart != GrammarAnalyzer::getVn(
@@ -179,12 +188,12 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
             Term newTerm;
             newTerm.dotPos = 0;
             // 将第j个产生式的左右部拆开放入newTerm中
-            GrammarAnalyzer::split(j,newTerm.leftPart, newTerm.rightPart);
+            GrammarAnalyzer::split(j, newTerm.leftPart, newTerm.rightPart);
 
             // 项目右部点右边第一个符号是终结符： B->•bA类型，则为移进(SHIFT)项目
             if (VtToIndexMap.count(newTerm.rightPart[0]) != 0)
                 newTerm.type = SHIFT;
-            // 项目右部点右边第一个符号是非终结符：B->b•A类型，则为待约(TO_REDUCE)项目
+                // 项目右部点右边第一个符号是非终结符：B->b•A类型，则为待约(TO_REDUCE)项目
             else if (VnToIndexMap.count(newTerm.rightPart[0]) != 0)
                 newTerm.type = TO_REDUCE;
 
@@ -200,32 +209,31 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
             // ①右边没有新符号了
             if (curTerm.dotPos == curTerm.rightPart.size() - 1)
                 newSubsequenceSet = curTerm.subsequence;
-            // ② 如果•不在末尾(右边还有终结符)，则将该终结符(其FIRST集合即自身)拉入展望符中
+                // ② 如果•不在末尾(右边还有终结符)，则将该终结符(其FIRST集合即自身)拉入展望符中
             else if (VtToIndexMap.count(
                     curTerm.rightPart[curTerm.dotPos + 1]) != 0)
                 newSubsequenceSet.push_back(curTerm.rightPart[curTerm.dotPos + 1]);
-            // ③ 如果右边还有非终结符，把该非终结符的FIRST集合拉进来
+                // ③ 如果右边还有非终结符，把该非终结符的FIRST集合拉进来
             else {
                 // 原文说的为啥是遍历FIRST里的终结符
                 // 但是下面又是用的非终结符的映射啊？= =不懂了。
                 newSubsequence = curTerm.rightPart[curTerm.dotPos + 1];
                 int indexOfCurVn = VnToIndexMap[newSubsequence];
                 set<string> FIRSTOfCurVn = FIRST[VnToIndexMap[newSubsequence]];
-                for (const auto& vn : FIRST[VnToIndexMap[newSubsequence]])
+                for (const auto &vn: FIRST[VnToIndexMap[newSubsequence]])
                     newSubsequenceSet.push_back(vn);
             }
             newTerm.subsequence = newSubsequenceSet;
-            // ATTENTION:       这里是后继符为空报错（说起来为空的话不是可以用M->null或者N->null来规约嘛？）
 //            if (newTerm.subsequence.empty())
 //                std::cerr << "后继符为空！" << endl;
 
             int newTermFlag = -1;
             // 如果和已有项目的左部/右部/•位置都相同，就合并
-            // 为什么不用重载的==符号呢，因为那个还要求展望符也相同
+            // 重载的==符号还要求展望符也相同所以不使用
             for (int k = 0; k < stateSet[stateIndex].size(); ++k) {
                 if (newTerm.leftPart == stateSet[stateIndex][k].leftPart
-                && newTerm.rightPart == stateSet[stateIndex][k].rightPart
-                && newTerm.dotPos == stateSet[stateIndex][k].dotPos)
+                    && newTerm.rightPart == stateSet[stateIndex][k].rightPart
+                    && newTerm.dotPos == stateSet[stateIndex][k].dotPos)
                     newTermFlag = k;
             }
             // 如果不在该状态的已有项目中，就作为新项目加入(否则不加入，只合并展望符)
@@ -236,10 +244,10 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
                 // 在将拉入的新项目与原来状态集的项目进行合并时进行检查。
                 // ① 收集即将并入的项目的所有展望符
                 map<string, int> subsequenceMap;
-                for (auto & m : stateSet[stateIndex][newTermFlag].subsequence)
+                for (auto &m: stateSet[stateIndex][newTermFlag].subsequence)
                     subsequenceMap[m]++;
                 // ② 检查新项目的展望符不在即将并入的项目中，就加入
-                for (auto & m : newTerm.subsequence) {
+                for (auto &m: newTerm.subsequence) {
                     if (subsequenceMap[m] == 0)
                         stateSet[stateIndex][newTermFlag].subsequence.push_back(m);
                 }
@@ -250,7 +258,8 @@ void SemanticAnalyzer::calculateClosure(int stateIndex) {
     }
 }
 
-int SemanticAnalyzer::GOTO(int stateIndex, const string& symbol) {
+
+int SemanticAnalyzer::GOTO(int stateIndex, const string &symbol) {
     int stateSize = stateSet[stateIndex].size();
     for (int i = 0; i < stateSize; ++i) {
         vector<string> rightPart = stateSet[stateIndex][i].rightPart;
@@ -292,10 +301,10 @@ int SemanticAnalyzer::GOTO(int stateIndex, const string& symbol) {
         stateSet[globalStateCount - 1].clear();
         globalStateCount--;
         return flag;
-    }
-    else
+    } else
         return globalStateCount - 1;
 }
+
 
 void SemanticAnalyzer::printStateSet() {
     for (int i = 0; i < globalStateCount; ++i) {
@@ -304,7 +313,7 @@ void SemanticAnalyzer::printStateSet() {
 
         cout << "---------------------\n";
         cout << "State I" << i << "\n";
-        for (const auto& term : stateSet[i]) {
+        for (const auto &term: stateSet[i]) {
             cout << '\t' << term.leftPart << " -> ";
             for (int j = 0; j < term.rightPart.size(); ++j) {
                 if (j == term.dotPos)
@@ -325,11 +334,12 @@ void SemanticAnalyzer::printStateSet() {
     }
 }
 
+
 void SemanticAnalyzer::printStateTable() {
     cout << "\t";
-    for (const auto& vt : VtToIndexMap)
+    for (const auto &vt: VtToIndexMap)
         cout << vt.first << "\t";
-    for (const auto& vn : VnToIndexMap) {
+    for (const auto &vn: VnToIndexMap) {
         // 跳过增广文法的第一个产生式左部
         if (vn.first == GrammarAnalyzer::getVn(
                 productionTable[0].substr(0, productionTable[0].length())))
@@ -342,7 +352,7 @@ void SemanticAnalyzer::printStateTable() {
             continue;
         cout << i << '\t';
         // 构造ACTION表
-        for (const auto& vt : VtToIndexMap) {
+        for (const auto &vt: VtToIndexMap) {
             int index = ActionTable[i][vt.second];
             if (isShiftTerm(index))
                 cout << "s" << getShiftStateIndex(index) << '\t';
@@ -355,7 +365,7 @@ void SemanticAnalyzer::printStateTable() {
         }
 
         // 构造GOTO表
-        for (const auto& vn : VnToIndexMap) {
+        for (const auto &vn: VnToIndexMap) {
             if (vn.first == GrammarAnalyzer::getVn(
                     productionTable[0].substr(0, productionTable[0].length())))
                 continue;
@@ -364,6 +374,7 @@ void SemanticAnalyzer::printStateTable() {
         cout << endl;
     }
 }
+
 
 void SemanticAnalyzer::generateStateSet(int choice) {
     generateI0();
@@ -374,7 +385,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
 
     int curState = 0;
 
-    for (auto & term : stateSet[0]) {
+    for (auto &term: stateSet[0]) {
         // 根据•右边的字判断是否能拉进来新的项目
         string symbol = term.rightPart[term.dotPos];
         if (symbolMap[symbol] == 0) {
@@ -387,7 +398,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
     while (!symbolStack.empty()) {
         string front = symbolStack.front();
         if (symbolStack.front() == "separator") {
-            for (auto & term : stateSet[curState]) {
+            for (auto &term: stateSet[curState]) {
 
                 // •在最右 => 规约项目，判断用哪个产生式进行规约
                 if (term.dotPos == term.rightPart.size()) {
@@ -395,7 +406,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
                     Term tmpTerm = term;
                     // 构造该产生式
                     string reduceTerm = tmpTerm.leftPart + "->";
-                    for (auto & k : tmpTerm.rightPart)
+                    for (auto &k: tmpTerm.rightPart)
                         reduceTerm += k;
 
                     int productionIndex = -1;
@@ -411,7 +422,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
                     else {
 
                         // LR(1)分析法 => 归约项后面出现展望符才进行规约
-                        for (auto & k : tmpTerm.subsequence) {
+                        for (auto &k: tmpTerm.subsequence) {
                             // 不等于0 => 该位置已经被写入过了 => 有两个规约方式 => 规约-规约冲突
 
 //                            if (ActionTable[curState][VtToIndexMap[k]] != 0)
@@ -448,7 +459,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
         if (nextState == globalStateCount - 1) {
             symbolMap.clear();
 
-            for (auto & j : stateSet[nextState]) {
+            for (auto &j: stateSet[nextState]) {
 
                 // 如果是归约项目 => 跳过
                 if (j.dotPos == j.rightPart.size())
@@ -470,6 +481,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
 //    printStateTable();
 //    printStateTableToFile("LR1_state_table.csv");
 }
+
 
 void SemanticAnalyzer::generateLALRTable() {
 //    cout << "Generating LALR parsing table\n";
@@ -499,8 +511,8 @@ void SemanticAnalyzer::generateLALRTable() {
             flag = j;
             for (int k = 0; k < stateSet[j].size(); ++k) {
                 if (stateSet[i][k].leftPart != stateSet[j][k].leftPart
-                || stateSet[i][k].rightPart != stateSet[j][k].rightPart
-                || stateSet[i][k].dotPos != stateSet[j][k].dotPos) {
+                    || stateSet[i][k].rightPart != stateSet[j][k].rightPart
+                    || stateSet[i][k].dotPos != stateSet[j][k].dotPos) {
                     flag = -1;
                     break;
                 }
@@ -513,7 +525,7 @@ void SemanticAnalyzer::generateLALRTable() {
                     map<string, int> subsequenceMap;
 
                     // 先记录被合并的项目的展望符
-                    for (auto & sub : stateSet[i][k].subsequence)
+                    for (auto &sub: stateSet[i][k].subsequence)
                         subsequenceMap[sub]++;
 
                     // 若新并入的项目有新展望符，则进行合并
@@ -530,7 +542,7 @@ void SemanticAnalyzer::generateLALRTable() {
                 // 合并后GOTO表不会有冲突，也不会产生新的移进-归约冲突
                 // 如果有冲突说明文法不是LALR文法
 
-                for (const auto& vt : VtToIndexMap) {
+                for (const auto &vt: VtToIndexMap) {
                     if (isReduceTerm(ActionTable[j][vt.second])) {
                         // 若被合并的状态集i未填充，则填充j的动作
                         if (ActionTable[i][vt.second] == 0)
@@ -554,16 +566,16 @@ void SemanticAnalyzer::generateLALRTable() {
         if (merged[i])
             continue;
 
-        for (const auto& vt : VtToIndexMap) {
+        for (const auto &vt: VtToIndexMap) {
             // 是移进项目且已经被合并
             if (isShiftTerm(ActionTable[i][vt.second])
-            && merged[ActionTable[i][vt.second] - SHIFT_BASE])
+                && merged[ActionTable[i][vt.second] - SHIFT_BASE])
                 ActionTable[i][vt.second] =
                         mergedToWhichState[
                                 ActionTable[i][vt.second] - SHIFT_BASE] + SHIFT_BASE;
         }
 
-        for (const auto& vn : VnToIndexMap) {
+        for (const auto &vn: VnToIndexMap) {
             // 如果合并，就填入被合并进的状态的GOTO状态索引
             if (merged[GotoTable[i][vn.second]])
                 GotoTable[i][vn.second] = mergedToWhichState[GotoTable[i][vn.second]];
@@ -587,19 +599,20 @@ void SemanticAnalyzer::generateLALRTable() {
     printStateTableToFile("amended_LALR_state_table.csv");
 }
 
-void SemanticAnalyzer::printStateTableToFile(const string& fileName) {
+
+void SemanticAnalyzer::printStateTableToFile(const string &fileName) {
 
     std::ofstream outFile;
     outFile.open(fileName, std::ios::out);
 
     outFile << ",";
-    for(const auto& vt: VtToIndexMap) {
+    for (const auto &vt: VtToIndexMap) {
         if (vt.first == ",")
             outFile << "\",\",";
         else
             outFile << vt.first << ",";
     }
-    for (const auto& vn :VnToIndexMap) {
+    for (const auto &vn: VnToIndexMap) {
         if (vn.first == GrammarAnalyzer::getVn(
                 productionTable[0].substr(0, productionTable[0].length())))
             continue;
@@ -610,7 +623,7 @@ void SemanticAnalyzer::printStateTableToFile(const string& fileName) {
         if (stateSet[i].empty())
             continue;
         outFile << i << ",";
-        for (const auto& vt : VtToIndexMap) {
+        for (const auto &vt: VtToIndexMap) {
             int index = ActionTable[i][vt.second];
             if (isShiftTerm(index))
                 outFile << "s" << getShiftStateIndex(index) << ",";
@@ -622,7 +635,7 @@ void SemanticAnalyzer::printStateTableToFile(const string& fileName) {
                 outFile << index << ",";
         }
 
-        for (const auto& vn : VnToIndexMap) {
+        for (const auto &vn: VnToIndexMap) {
             if (vn.first == GrammarAnalyzer::getVn(
                     productionTable[0].substr(0, productionTable[0].length())))
                 continue;
@@ -634,29 +647,31 @@ void SemanticAnalyzer::printStateTableToFile(const string& fileName) {
     outFile.close();
 }
 
+
 void SemanticAnalyzer::printStateTableToFilePureNumber(const string &fileName) {
     std::ofstream outFile;
     outFile.open(fileName, std::ios::out);
 
     for (int i = 0; i < maxTermCount; ++i) {
-        for (int item : ActionTable[i])
+        for (int item: ActionTable[i])
             outFile << item << ",";
-        for (int item : GotoTable[i])
+        for (int item: GotoTable[i])
             outFile << item << ",";
         outFile << "\n";
     }
     outFile.close();
 }
 
+
 void SemanticAnalyzer::readStateTable(const string &fileName) {
     std::ifstream inFile(fileName, std::ios::in);
     string line;
     vector<vector<int>> tableTemp;
-    while(std::getline(inFile, line)) {
+    while (std::getline(inFile, line)) {
         std::stringstream lineStr(line);
         string number;
         vector<int> rowTemp;
-        while(std::getline(lineStr, number, ',')) {
+        while (std::getline(lineStr, number, ',')) {
             rowTemp.push_back(std::atoi(number.c_str()));
         }
         tableTemp.push_back(rowTemp);

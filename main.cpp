@@ -12,6 +12,7 @@ int main() {
     QuadrupleGenerator::lex(false);
     QuadrupleGenerator::parse(false);
     QuadrupleGenerator::printQuadruples();
+    QuadrupleGenerator::printResultToFile();
 
     return 0;
 }

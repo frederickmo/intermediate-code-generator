@@ -14,6 +14,17 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+class Word;
+
+
+// 词法分析表
+vector<Word> lexicalTable;
+int lexicalTableLength = 0;
+
+// 定位二元式在源代码哪一行
+vector<int> locateInputCode;
+
+
 static bool isSmallLetter(char c) {
     return c >= 'a' && c <= 'z';
 }
@@ -48,17 +59,10 @@ public:
     string token;
 
     Word() = default;
-    void print() const {
-        cout << "indexInKeyWords => " << indexInKeywords << ", token => " << token << endl;
-    }
+
+    void print() const;
 };
 
-// 词法分析表
-vector<Word> lexicalTable;
-int lexicalTableLength = 0;
-
-// 定位二元式在源代码哪一行
-vector<int> locateInputCode;
 
 class Tokenizer {
 public:
@@ -66,14 +70,22 @@ public:
     vector<int> locationOfBinaryTermInInputFile;
 
     // 分析关键字/用户定义变量
-    static Word wordAnalyze(const string& subCode);
-    // 识别数字
-    static Word numberAnalyze(const string& subCode);
-    // 识别字符
-    static Word characterAnalyze(const string& subCode);
+    static Word wordAnalyze(const string &subCode);
 
-    static void lexicalAnalyze(const string& code);
+    // 识别数字
+    static Word numberAnalyze(const string &subCode);
+
+    // 识别字符
+    static Word characterAnalyze(const string &subCode);
+
+    static void lexicalAnalyze(const string &code);
 };
+
+
+void Word::print() const {
+    cout << "indexInKeyWords => " << indexInKeywords << ", token => " << token << endl;
+}
+
 
 Word Tokenizer::wordAnalyze(const string &subCode) {
     Word word;
@@ -93,7 +105,8 @@ Word Tokenizer::wordAnalyze(const string &subCode) {
                 word.indexInKeywords = VARIABLE;
                 keywords[word.indexInKeywords] = subCode.substr(0, i);
                 break;
-            } else if ((isLetter(subCode[i]) || isDigit(subCode[i]) || isUnderline(subCode[i])) && i == subCode.length() - 1) {
+            } else if ((isLetter(subCode[i]) || isDigit(subCode[i]) || isUnderline(subCode[i])) &&
+                       i == subCode.length() - 1) {
                 word.indexInKeywords = VARIABLE;
                 keywords[word.indexInKeywords] = subCode.substr(0, subCode.length());
                 break;
@@ -104,9 +117,10 @@ Word Tokenizer::wordAnalyze(const string &subCode) {
     return word;
 }
 
+
 Word Tokenizer::numberAnalyze(const string &subCode) {
     Word word;
-    for( int i = 0; i <= subCode.length(); ++i) {
+    for (int i = 0; i <= subCode.length(); ++i) {
         // 既不是数字也不是小数点，
         // 截取到第一个非数字和小数点的字符
         if (!(isDigit(subCode[i]) || isDecimalPoint(subCode[i]))) {
@@ -124,9 +138,10 @@ Word Tokenizer::numberAnalyze(const string &subCode) {
     return word;
 }
 
+
 Word Tokenizer::characterAnalyze(const string &subCode) {
     Word word;
-    switch(subCode[0]) {
+    switch (subCode[0]) {
         case '#':
             word.indexInKeywords = 0;
             break;
@@ -212,6 +227,7 @@ Word Tokenizer::characterAnalyze(const string &subCode) {
     word.token = keywords[word.indexInKeywords];
     return word;
 }
+
 
 void Tokenizer::lexicalAnalyze(const string &code) {
     int length = code.length();

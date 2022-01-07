@@ -24,22 +24,32 @@ class Procedure;
 
 vector<Quadruple> QuadrupleList;
 
-const int offset = 100;
-int nextQuad = 0 + offset;
-vector<Symbol> symbolTable;
+const int offset = 100; // 偏移（四元式真实地址 = 四元式列表中索引 + 偏移）
+int nextQuad = 0 + offset; // 未生成的下一条四元式的地址
+vector<Symbol> symbolTable; // 符号表
 map<string, int> variableTable; // 记录哪些用户自定义符号是变量
 map<string, Label> labelTable; // 记录哪些符号是label
-vector<Procedure> procedureList;
-map<string, int> entry;
-int tempVariableCount = 0;
+vector<Procedure> procedureList; // 过程(函数)表
+map<string, int> entry; // 符号的入口地址map
+int tempVariableCount = 0; // 全局临时变量个数
 
 
 class Symbol {
 public:
+
+    // 符号名
+    // => 在规约过程中符号name不变化而是符号的valString变化，
+    // name用于观察符号栈中符号的变化进行测试，
+    // valString才是用于最后生成四元式的内容
     string name;
     string val{"0"};
-    string valString; // 这个属性是生成三地址代码用的
-    bool isInteger{false};
+
+    // 符号存储的真实内容
+    // => 在规约过程中符号name不变化而是符号的valString变化，
+    // name用于观察符号栈中符号的变化进行测试，
+    // valString才是用于最后生成四元式的内容
+    string valString;
+    bool isInteger{false}; // 是否是整数
     int place{-1};
     int trueExit{-1}; // 真出口
     int falseExit{-1}; // 假出口
@@ -60,119 +70,67 @@ class Procedure {
 public:
     string name;
     int place{};
-    vector<string> parameters;
+    vector<string> parameters; // 参数列表
 };
 
 class Quadruple {
 public:
-    string op;
-    bool isAssignment = true;
-    bool hasArg2 = true;
+    string op; // 操作符
+    bool isAssignment = true; // 是否是赋值语句
+    bool hasArg2 = true; // 是否有第二个参数
     string arg1;
-    bool isArg1Integer = false;
-    int arg1Index = 0;
+    bool isArg1Integer = false; // 是否是整数
+    int arg1Index = 0; // 符号表索引
     string arg2;
     bool isArg2Integer = false;
     int arg2Index = 0;
-    int resultIndex = -1;
+    int resultIndex = -1; // 结果在符号表的索引 或 跳转地址
     string resultName;
 
-    bool isProcedureCall = false;
+    bool isProcedureCall = false; // 是否是过程调用语句
     string procedure;
 
-    Quadruple(string op, string arg1, bool isArg1Integer, string resultName) :
-            op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
-            resultName(std::move(resultName)), hasArg2(false) {}
+    Quadruple(string op, string arg1, bool isArg1Integer, string resultName);
 
     Quadruple(string op, string arg1, bool isArg1Integer,
-                 string arg2, bool isArg2Integer, string resultName) :
-            op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
-            arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
+              string arg2, bool isArg2Integer, string resultName);
 
     Quadruple(string op, bool isAssignment,
-                 string arg1, int arg1Index, bool isArg1Integer,
-                 string arg2, int arg2Index, bool isArg2Integer,
-                 string resultName, int resultIndex) :
-            op(std::move(op)), isAssignment(isAssignment),
-            arg1(std::move(arg1)), arg1Index(arg1Index), isArg1Integer(isArg1Integer),
-            arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
-            resultName(std::move(resultName)), resultIndex(resultIndex) {}
+              string arg1, int arg1Index, bool isArg1Integer,
+              string arg2, int arg2Index, bool isArg2Integer,
+              string resultName, int resultIndex);
 
-    Quadruple(bool isProcedureCall, string procedure) :
-            isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
+    Quadruple(bool isProcedureCall, string procedure);
 
-    void print() const {
-        if (isProcedureCall)
-            cout << procedure << endl;
-        else if (isAssignment) {
-            if (hasArg2)
-                cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
-            else if (op == "uminus")
-                cout << resultName << " := uminus " << arg1 << endl;
-            else
-                cout << resultName << " := " << arg1 << endl;
-        } else {
-            cout << "(" << op << ", " << arg1Index << ", " << arg2Index << ", "
-                 << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
-                 << ")" << endl;
-        }
-    }
+    void print() const;
 
-    void printArgInName() const {
-        if (isProcedureCall)
-            cout << procedure << endl;
-        else if (isAssignment) {
-            if (hasArg2)
-                cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
-            else if (op == "uminus")
-                cout << resultName << " := uminus " << arg1 << endl;
-            else
-                cout << resultName << " := " << arg1 << endl;
-        } else {
-            cout << "(" << op << ", " << arg1 << ", " << arg2 << ", "
-                 << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
-                 << ")" << endl;
-        }
-    }
+    void printArgInName() const;
 
-    void printAsQuadruple() const {
-        if (isProcedureCall)
-            cout << procedure << endl;
-        else if (isAssignment) {
-            if (hasArg2)
-                cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
-                     << (isArg2Integer ? "#" : "") << arg2 << ", " << resultName << ")" << endl;
-            else if (op == "uminus")
-                cout << "(" << "uminus" << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")"
-                     << endl;
-            else
-                cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
-        } else {
-            cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
-                 << (isArg2Integer ? "#" : "") << arg2 << ", "
-                 << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
-                 << ")" << endl;
+    void printAsQuadruple() const;
 
-        }
-    }
+    void print(std::ofstream& outFile) const;
+
+    void printArgInName(std::ofstream& outFile) const;
+
+    void printAsQuadruple(std::ofstream& outFile) const;
 };
 
-Symbol Symbol::generateNewTempVar() {
-    tempVariableCount++;
-    return Symbol{"T" + std::to_string(tempVariableCount)};
-}
-
+// 四元式生成类
 class QuadrupleGenerator {
 public:
 
     // 产生跳转语句
-    static void generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex);
+    static void generateIntermediateCode(const string &op, const string &arg1, bool isArg1Integer, const string &arg2,
+                                         bool isArg2Integer, int resultIndex);
 
     // 产生一元计算的赋值语句
-    static void generateSingleArgThreeAddressCode(const string& result, const string& op, const string& arg, bool isArgInteger);
+    static void
+    generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger);
 
     // 产生二元计算的赋值语句
-    static void generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer);
+    static void
+    generateDoubleArgThreeAddressCode(const string &result, const string &op, const string &arg1, bool isArg1Integer,
+                                      const string &arg2, bool isArg2Integer);
 
     // 产生过程调用语句
     static void generateProcedureCall(bool isProcedureCall, string procedure);
@@ -197,28 +155,187 @@ public:
     static void lex(bool showDetail);
 
     // 输出四元式
-    static void printQuadruples(int choice);
+    static void printQuadruples(int choice = 0);
+
+    static void printResultToFile(int choice = 0);
 };
 
-void QuadrupleGenerator::generateIntermediateCode(const string& op, const string& arg1, bool isArg1Integer, const string& arg2, bool isArg2Integer, int resultIndex) {
-    Quadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer, std::to_string(resultIndex), resultIndex);
+
+Symbol Symbol::generateNewTempVar() {
+    tempVariableCount++;
+    return Symbol{"T" + std::to_string(tempVariableCount)};
+}
+
+
+Quadruple::Quadruple(string op, string arg1, bool isArg1Integer, string resultName) :
+        op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
+        resultName(std::move(resultName)), hasArg2(false) {}
+
+
+Quadruple::Quadruple(string op, string arg1, bool isArg1Integer,
+                     string arg2, bool isArg2Integer, string resultName) :
+        op(std::move(op)), arg1(std::move(arg1)), isArg1Integer(isArg1Integer),
+        arg2(std::move(arg2)), isArg2Integer(isArg2Integer), resultName(std::move(resultName)) {}
+
+
+Quadruple::Quadruple(string op, bool isAssignment,
+                     string arg1, int arg1Index, bool isArg1Integer,
+                     string arg2, int arg2Index, bool isArg2Integer,
+                     string resultName, int resultIndex) :
+        op(std::move(op)), isAssignment(isAssignment),
+        arg1(std::move(arg1)), arg1Index(arg1Index), isArg1Integer(isArg1Integer),
+        arg2(std::move(arg2)), arg2Index(arg2Index), isArg2Integer(isArg2Integer),
+        resultName(std::move(resultName)), resultIndex(resultIndex) {}
+
+
+Quadruple::Quadruple(bool isProcedureCall, string procedure) :
+        isProcedureCall(isProcedureCall), procedure(std::move(procedure)) {}
+
+
+void Quadruple::print() const {
+    if (isProcedureCall)
+        cout << procedure << endl;
+    else if (isAssignment) {
+        if (hasArg2)
+            cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+        else if (op == "uminus")
+            cout << resultName << " := uminus " << arg1 << endl;
+        else
+            cout << resultName << " := " << arg1 << endl;
+    } else {
+        cout << "(" << op << ", " << arg1Index << ", " << arg2Index << ", "
+             << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
+             << ")" << endl;
+    }
+}
+
+
+void Quadruple::printArgInName() const {
+    if (isProcedureCall)
+        cout << procedure << endl;
+    else if (isAssignment) {
+        if (hasArg2)
+            cout << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+        else if (op == "uminus")
+            cout << resultName << " := uminus " << arg1 << endl;
+        else
+            cout << resultName << " := " << arg1 << endl;
+    } else {
+        cout << "(" << op << ", " << arg1 << ", " << arg2 << ", "
+             << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
+             << ")" << endl;
+    }
+}
+
+
+void Quadruple::printAsQuadruple() const {
+    if (isProcedureCall)
+        cout << procedure << endl;
+    else if (isAssignment) {
+        if (hasArg2) {
+            cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
+                 //                 << (isArg2Integer ? "#" : "")
+                 << arg2 << ", " << resultName << ")" << endl;
+        } else if (op == "uminus")
+            cout << "(" << "uminus" << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")"
+                 << endl;
+        else
+            cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
+    } else {
+        cout << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
+             << (isArg2Integer ? "#" : "") << arg2 << ", "
+             << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
+             << ")" << endl;
+
+    }
+}
+
+
+void Quadruple::print(std::ofstream& outFile) const {
+    if (isProcedureCall)
+        outFile << procedure << endl;
+    else if (isAssignment) {
+        if (hasArg2)
+            outFile << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+        else if (op == "uminus")
+            outFile << resultName << " := uminus " << arg1 << endl;
+        else
+            outFile << resultName << " := " << arg1 << endl;
+    } else {
+        outFile << "(" << op << ", " << arg1Index << ", " << arg2Index << ", "
+             << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
+             << ")" << endl;
+    }
+
+}
+
+void Quadruple::printArgInName(std::ofstream& outFile) const {
+    if (isProcedureCall)
+        outFile << procedure << endl;
+    else if (isAssignment) {
+        if (hasArg2)
+            outFile << resultName << " := " << arg1 << " " << op << " " << arg2 << endl;
+        else if (op == "uminus")
+            outFile << resultName << " := uminus " << arg1 << endl;
+        else
+            outFile << resultName << " := " << arg1 << endl;
+    } else {
+        outFile << "(" << op << ", " << arg1 << ", " << arg2 << ", "
+             << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
+             << ")" << endl;
+    }
+
+}
+
+void Quadruple::printAsQuadruple(std::ofstream& outFile) const {
+    if (isProcedureCall)
+        outFile << procedure << endl;
+    else if (isAssignment) {
+        if (hasArg2) {
+            outFile << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
+                 //                 << (isArg2Integer ? "#" : "")
+                 << arg2 << ", " << resultName << ")" << endl;
+        } else if (op == "uminus")
+            outFile << "(" << "uminus" << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")"
+                 << endl;
+        else
+            outFile << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", -, " << resultName << ")" << endl;
+    } else {
+        outFile << "(" << op << ", " << (isArg1Integer ? "#" : "") << arg1 << ", "
+             << (isArg2Integer ? "#" : "") << arg2 << ", "
+             << (resultIndex < offset ? "uncertain" : std::to_string(resultIndex))
+             << ")" << endl;
+    }
+
+}
+
+
+
+void QuadrupleGenerator::generateIntermediateCode(const string &op, const string &arg1, bool isArg1Integer,
+                                                  const string &arg2, bool isArg2Integer, int resultIndex) {
+    Quadruple quadruple(op, false, arg1, entry[arg1], isArg1Integer, arg2, entry[arg2], isArg2Integer,
+                        std::to_string(resultIndex), resultIndex);
     QuadrupleList.push_back(quadruple);
     nextQuad++;
 }
 
-void QuadrupleGenerator::generateDoubleArgThreeAddressCode(const string& result, const string& op, const string& arg1,
-                                                            bool isArg1Integer,  const string& arg2, bool isArg2Integer) {
+
+void QuadrupleGenerator::generateDoubleArgThreeAddressCode(const string &result, const string &op, const string &arg1,
+                                                           bool isArg1Integer, const string &arg2, bool isArg2Integer) {
 //    quadrupleOrTAC.push_back(result + " := " + expression);
     Quadruple quadruple(op, arg1, isArg1Integer, arg2, isArg2Integer, result);
     QuadrupleList.push_back(quadruple);
     ++nextQuad;
 }
 
-void QuadrupleGenerator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg, bool isArgInteger) {
+
+void QuadrupleGenerator::generateSingleArgThreeAddressCode(const string &result, const string &op, const string &arg,
+                                                           bool isArgInteger) {
     Quadruple quadruple(op, arg, isArgInteger, result);
     QuadrupleList.push_back(quadruple);
     ++nextQuad;
 }
+
 
 void QuadrupleGenerator::generateProcedureCall(bool isProcedureCall, string procedure) {
     Quadruple quadruple(isProcedureCall, std::move(procedure));
@@ -250,13 +367,14 @@ int QuadrupleGenerator::merge(int listHead1, int listHead2) {
     }
 }
 
+
 int QuadrupleGenerator::merge(int listHead1, int listHead2, int listHead3) {
     // 调用二参数的merge递归
     return merge(listHead1, merge(listHead2, listHead3));
 }
 
 /**
- * CORE:【关于回填】
+ * 【关于回填】
  * 正式生成的四元式里每一条的序号(即地址)
  * 都是其在四元式列表里的索引加上了一个偏移量(offset=100)得来。
  * 对于跳转语句，为了区分已经有确定跳转地址的语句和没有确定跳转地址(等待回填)的语句，
@@ -282,6 +400,7 @@ void QuadrupleGenerator::backPatch(int listHead, int quad) {
 
 }
 
+
 void QuadrupleGenerator::checkError(int pos) {
     std::cerr << "存在语法错误\n";
     for (int lineCount = 0; lineCount < locateInputCode.size(); ++lineCount) {
@@ -292,6 +411,7 @@ void QuadrupleGenerator::checkError(int pos) {
     }
     exit(0);
 }
+
 
 static void printStateStack(const stack<int> &stateStack) {
     cout << "状态栈 ";
@@ -308,6 +428,7 @@ static void printStateStack(const stack<int> &stateStack) {
     cout << endl;
 }
 
+
 static void printSymbolStack(const stack<Symbol> &symbolStack) {
     cout << "符号栈 ";
     stack<Symbol> copy = symbolStack;
@@ -322,6 +443,7 @@ static void printSymbolStack(const stack<Symbol> &symbolStack) {
     }
     cout << endl;
 }
+
 
 void QuadrupleGenerator::parse(bool showDetail) {
     // 初始化状态栈/符号栈/语义栈
@@ -466,7 +588,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.top().place = entry[semanticStack.top()];
                 symbolStack.top().valString = semanticStack.top();
                 bool isIncluded = false;
-                for (const auto &symbol : symbolTable) {
+                for (const auto &symbol: symbolTable) {
                     if (symbol.name == symbolStack.top().name) {
                         symbolStack.top().isInteger = symbol.isInteger;
                         isIncluded = true;
@@ -477,12 +599,12 @@ void QuadrupleGenerator::parse(bool showDetail) {
                     symbolStack.top().isInteger = symbolTable.back().isInteger;
 
             } else if (production == "<<RELOP>>->="
-            || production == "<<RELOP>>->!="
-            || production == "<<RELOP>>-><"
-            || production == "<<RELOP>>-><="
-            || production == "<<RELOP>>->>"
-            || production == "<<RELOP>>->>=") {
-                 // 产生式27,28,29,30,31,32的归约
+                       || production == "<<RELOP>>->!="
+                       || production == "<<RELOP>>-><"
+                       || production == "<<RELOP>>-><="
+                       || production == "<<RELOP>>->>"
+                       || production == "<<RELOP>>->>=") {
+                // 产生式27,28,29,30,31,32的归约
 
                 symbolStack.pop();
                 stateStack.pop();
@@ -531,34 +653,34 @@ void QuadrupleGenerator::parse(bool showDetail) {
             } else if (production == "<<BCMP>>-><<EXPR>><<RELOP>><<EXPR>>") {
                 // 产生式4的归约
 
-                 Symbol expression1, expression2, relop;
-                 // 符号栈弹出三位，其中top是第二个操作符，top-2是第一个操作符
-                 for (int count = 0; count < 3; ++count) {
-                     if (count == 0)
-                         expression2 = symbolStack.top();
-                     else if (count == 2)
-                         expression1 = symbolStack.top();
-                     else
-                         relop = symbolStack.top();
-                     symbolStack.pop();
-                     stateStack.pop();
-                 }
+                Symbol expression1, expression2, relop;
+                // 符号栈弹出三位，其中top是第二个操作符，top-2是第一个操作符
+                for (int count = 0; count < 3; ++count) {
+                    if (count == 0)
+                        expression2 = symbolStack.top();
+                    else if (count == 2)
+                        expression1 = symbolStack.top();
+                    else
+                        relop = symbolStack.top();
+                    symbolStack.pop();
+                    stateStack.pop();
+                }
 
-                 symbolStack.push(Symbol{reduceTerm.leftPart});
-                 curState = stateStack.top();
-                 stateStack.push(
-                         GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                symbolStack.push(Symbol{reduceTerm.leftPart});
+                curState = stateStack.top();
+                stateStack.push(
+                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
 
-                 // 给出真假出口地址
-                 symbolStack.top().trueExit = nextQuad - offset;
-                 symbolStack.top().falseExit = nextQuad + 1 - offset;
+                // 给出真假出口地址
+                symbolStack.top().trueExit = nextQuad - offset;
+                symbolStack.top().falseExit = nextQuad + 1 - offset;
 
-                 // 生成两条语句
+                // 生成两条语句
                 string place1Str = std::to_string(expression1.place);
                 string place2str = std::to_string(expression2.place);
                 generateIntermediateCode("j" + relop.valString, expression1.valString,
                                          expression1.isInteger, expression2.valString, expression2.isInteger, -1);
-                generateIntermediateCode("j", "-", false, "-", false,-1);
+                generateIntermediateCode("j", "-", false, "-", false, -1);
 
             } else if (production == "A-><<ID>>:=<<EXPR>>") {
                 // 产生式1的归约
@@ -609,10 +731,10 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 generateSingleArgThreeAddressCode(id.valString, ":=", expression.valString, expression.isInteger);
 
             } else if (production == "S->A"
-            || production == "L->S"
-            || production == "<<STMT>>->S"
-            || production == "<<START>>-><<STMT>>"
-            || production == "<<STMT>>-><<OPENSTMT>>") {
+                       || production == "L->S"
+                       || production == "<<STMT>>->S"
+                       || production == "<<START>>-><<STMT>>"
+                       || production == "<<STMT>>-><<OPENSTMT>>") {
                 // 产生式34,40,41的归约
 
                 // 顶部语句
@@ -635,7 +757,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                     symbolStack.top().nextList = statement.nextList;
 
             } else if (production == "<<EXPR>>-><<EXPR>>+<<TERM>>"
-            || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
+                       || production == "<<TERM>>-><<TERM>>*<<FACTOR>>") {
                 // 产生式14，44的归约
 
                 Symbol expression1, expression2;
@@ -719,8 +841,8 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.top().valString = expression.valString;
 
             } else if (production == "<<BEXPR>>-><<BAND>>"
-            || production == "<<BAND>>-><<BNOT>>"
-            || production == "<<BNOT>>-><<BCMP>>") {
+                       || production == "<<BAND>>-><<BNOT>>"
+                       || production == "<<BNOT>>-><<BCMP>>") {
                 // 产生式2,7,9的归约
 
                 // 记录产生式右部符号
@@ -765,7 +887,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.top().nextList = merge(booleanExpression.falseExit, statement.nextList);
 
             } else if (production == "S->if<<BEXPR>>thenMSNelseMS"
-            || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
+                       || production == "<<OPENSTMT>>->if<<BEXPR>>thenMSNelseM<<OPENSTMT>>") {
                 // 产生式26，33的归约
 
                 // 一共9个符号：一共需要弹出9次
@@ -798,7 +920,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
                 symbolStack.top().nextList = merge(statement1.nextList, N.nextList, statement2.nextList);
 
             } else if (production == "M->null"
-            || production == "N->null") {
+                       || production == "N->null") {
                 // 产生式21,22的归约
 
                 symbolStack.pop();
@@ -944,15 +1066,14 @@ void QuadrupleGenerator::parse(bool showDetail) {
                     }
                         // 否则将该地址添加到label的nextList里
                     else
-                    labelTable[label.valString].nextList =
-                            merge(nextQuad - offset,
-                                  labelTable[label.valString].nextList);
+                        labelTable[label.valString].nextList =
+                                merge(nextQuad - offset,
+                                      labelTable[label.valString].nextList);
                 }
 
                 generateIntermediateCode("j", "-", false, "-", false, address);
 
-            }
-            else if (production == "S->whileM<<BEXPR>>doMS") {
+            } else if (production == "S->whileM<<BEXPR>>doMS") {
                 // 产生式36的归约
 
                 // 一共6个符号：一共需要弹出6次
@@ -1001,7 +1122,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
 
                 Procedure function = procedureList.back();
                 function.name = id.valString;
-                for (const auto &param : function.parameters)
+                for (const auto &param: function.parameters)
                     generateProcedureCall(true, "param " + param);
                 generateProcedureCall(true, "call " + function.name);
 
@@ -1134,6 +1255,7 @@ void QuadrupleGenerator::parse(bool showDetail) {
     }
 }
 
+
 void QuadrupleGenerator::lex(bool showDetail) {
     string inputCode;
     std::ifstream inFile("input.txt");
@@ -1149,19 +1271,20 @@ void QuadrupleGenerator::lex(bool showDetail) {
 
     if (showDetail) {
         cout << "\nlexical table: \n";
-        for (const auto& word : lexicalTable)
+        for (const auto &word: lexicalTable)
             word.print();
     }
 
 }
 
-void QuadrupleGenerator::printQuadruples(int choice = 0) {
+
+void QuadrupleGenerator::printQuadruples(int choice) {
     int address = offset;
-    switch(choice) {
+    switch (choice) {
         default:
         case 0:
             cout << "四元式形式\n";
-            for (const auto& quadruple : QuadrupleList) {
+            for (const auto &quadruple: QuadrupleList) {
                 cout << "(" << address << ") ";
                 quadruple.printAsQuadruple();
                 ++address;
@@ -1170,22 +1293,58 @@ void QuadrupleGenerator::printQuadruples(int choice = 0) {
             break;
         case 1:
             cout << "三地址代码形式\n";
-            for (const auto& quadruple : QuadrupleList) {
+            for (const auto &quadruple: QuadrupleList) {
                 cout << "(" << address << ") ";
                 quadruple.printArgInName();
                 ++address;
             }
         case 2:
             cout << "四元式形式(变量以地址形式输出)\n";
-            for (const auto& quadruple : QuadrupleList) {
+            for (const auto &quadruple: QuadrupleList) {
                 cout << "(" << address << ") ";
                 quadruple.print();
                 ++address;
             }
-
-
     }
 }
+
+
+void QuadrupleGenerator::printResultToFile(int choice) {
+
+    std::ofstream outFile;
+    outFile.open("result.txt");
+
+    if (outFile.is_open()) {
+        int address = offset;
+        switch (choice) {
+            default:
+            case 0:
+                outFile << "四元式形式\n";
+                for (const auto &quadruple: QuadrupleList) {
+                    outFile << "(" << address << ") ";
+                    quadruple.print(outFile);
+                    ++address;
+                }
+                outFile << endl;
+                break;
+            case 1:
+                outFile << "三地址代码形式\n";
+                for (const auto &quadruple: QuadrupleList) {
+                    outFile << "(" << address << ") ";
+                    quadruple.printArgInName(outFile);
+                    ++address;
+                }
+            case 2:
+                outFile << "四元式形式(变量以地址形式输出)\n";
+                for (const auto &quadruple: QuadrupleList) {
+                    outFile << "(" << address << ") ";
+                    quadruple.print(outFile);
+                    ++address;
+                }
+        }
+    }
+}
+
 
 
 #endif //INTERMEDIATE_CODE_GENERATOR_QUADRUPLEGENERATOR_H

@@ -17,6 +17,7 @@ using std::set;
 // 将非终结符和终结符映射到唯一的索引的map
 static map<string, int> VnToIndexMap, VtToIndexMap;
 
+// 文法产生式
 const vector<string> productionTable = {
 
 /*0*/            "<<ACC>>-><<START>>",
@@ -99,15 +100,18 @@ set<string> FOLLOW[60];
 class GrammarAnalyzer {
 public:
 
-    static string getVn(const string& production);
-    static string getVt(const string& production);
+    static string getVn(const string &production);
+
+    static string getVt(const string &production);
+
     // 对产生式进行扫描，识别所有终结符和非终结符
     static void scanProduction();
+
     // RHS = right hand side 将产生式右部按（非）终结符分割
-    static vector<string> splitRHSOfProduction(const string& RHSOfProduction);
+    static vector<string> splitRHSOfProduction(const string &RHSOfProduction);
 
     // 将产生式分割为左部和右部
-    static void split(const string& production, string &LHS, vector<string>& RHS);
+    static void split(const string &production, string &LHS, vector<string> &RHS);
 
     // 判断从leftIndex到rightIndex之间的符号是否可推导为空字
     static bool allNullable(vector<string> Yset, int leftIndex, int rightIndex);
@@ -118,9 +122,8 @@ public:
     // 计算得到最终FIRST和FOLLOW集合
     static void calculateFinalFIRSTAndFOLLOWSets();
 
-
-
 };
+
 
 string GrammarAnalyzer::getVn(const string &production) {
     if (production.substr(0, 2) == "<<") {
@@ -136,6 +139,7 @@ string GrammarAnalyzer::getVn(const string &production) {
         return production.substr(0, 1);
     }
 }
+
 
 string GrammarAnalyzer::getVt(const string &production) {
     for (int i = 0; i < CHARACTER_COUNT; ++i) {
@@ -158,6 +162,7 @@ string GrammarAnalyzer::getVt(const string &production) {
     if (isSmallLetter(production[0]))
         return production.substr(0, 1);
 }
+
 
 void GrammarAnalyzer::scanProduction() {
     for (auto &production: productionTable) {
@@ -197,162 +202,166 @@ void GrammarAnalyzer::scanProduction() {
 }
 
 
-    vector<string> GrammarAnalyzer::splitRHSOfProduction(const string &RHSOfProduction) {
-        vector<string> Ysets;
-        for (int i = 0; i < RHSOfProduction.length(); ++i) {
-            if (isBlank(RHSOfProduction[i]))
-                continue;
-            else if (isCapitalLetter(RHSOfProduction[i]) || RHSOfProduction.substr(i, 2) == "<<") {
-                // ①该符号首字符是大写字母 ②以"<<"串开头 是非终结符
-                string Vn = getVn(RHSOfProduction.substr(i, RHSOfProduction.length() - i));
-                Ysets.push_back(Vn);
-                i += Vn.length() - 1;
-            } else {
-                // 除此之外是终结符
-                string Vt = getVt(RHSOfProduction.substr(i, RHSOfProduction.length() - i));
-                Ysets.push_back(Vt);
-                i += Vt.length() - 1;
-            }
+vector<string> GrammarAnalyzer::splitRHSOfProduction(const string &RHSOfProduction) {
+    vector<string> Ysets;
+    for (int i = 0; i < RHSOfProduction.length(); ++i) {
+        if (isBlank(RHSOfProduction[i]))
+            continue;
+        else if (isCapitalLetter(RHSOfProduction[i]) || RHSOfProduction.substr(i, 2) == "<<") {
+            // ①该符号首字符是大写字母 ②以"<<"串开头 是非终结符
+            string Vn = getVn(RHSOfProduction.substr(i, RHSOfProduction.length() - i));
+            Ysets.push_back(Vn);
+            i += Vn.length() - 1;
+        } else {
+            // 除此之外是终结符
+            string Vt = getVt(RHSOfProduction.substr(i, RHSOfProduction.length() - i));
+            Ysets.push_back(Vt);
+            i += Vt.length() - 1;
         }
-        return Ysets;
     }
+    return Ysets;
+}
 
-    void GrammarAnalyzer::split(const string &production, string &LHS, vector<string> &RHS) {
-        int delimiterIndex = production.find("->");
-        LHS = production.substr(0, delimiterIndex);
-        // 实现trim()函数功能：移除前后空格
-        LHS.erase(0, LHS.find_first_not_of(' '));
-        LHS.erase(LHS.find_last_not_of(' ') + 1);
-        string rightProduction = production.substr(delimiterIndex + 2, production.length() - delimiterIndex - 2);
-        RHS = splitRHSOfProduction(rightProduction);
-    }
 
-    bool GrammarAnalyzer::allNullable(vector<string> Yset, int leftIndex, int rightIndex) {
-        if (leftIndex >= Yset.size() || leftIndex > rightIndex || rightIndex < 0)
-            return true;
-        for (int i = leftIndex; i <= rightIndex; ++i) {
-            // 任何一个字符不可推导为空字即返回false
-            if (!nullable[Yset[i]])
-                return false;
-        }
+void GrammarAnalyzer::split(const string &production, string &LHS, vector<string> &RHS) {
+    int delimiterIndex = production.find("->");
+    LHS = production.substr(0, delimiterIndex);
+    // 实现trim()函数功能：移除前后空格
+    LHS.erase(0, LHS.find_first_not_of(' '));
+    LHS.erase(LHS.find_last_not_of(' ') + 1);
+    string rightProduction = production.substr(delimiterIndex + 2, production.length() - delimiterIndex - 2);
+    RHS = splitRHSOfProduction(rightProduction);
+}
+
+
+bool GrammarAnalyzer::allNullable(vector<string> Yset, int leftIndex, int rightIndex) {
+    if (leftIndex >= Yset.size() || leftIndex > rightIndex || rightIndex < 0)
         return true;
+    for (int i = leftIndex; i <= rightIndex; ++i) {
+        // 任何一个字符不可推导为空字即返回false
+        if (!nullable[Yset[i]])
+            return false;
     }
+    return true;
+}
 
-    void GrammarAnalyzer::calculateFIRSTAndFOLLOWSets() {
-        for (auto const &i: VtToIndexMap) {
-            string Vt = i.first;
-            int VtIndex = i.second;
-            // 对于终结符：FIRST集合即为自己
-            FIRST[VtIndex].insert(Vt);
-        }
-        for (const auto &production: productionTable) {
-            string X;
-            vector<string> Yset;
-            int delimiterIndex = production.find("->");
-            X = production.substr(0, delimiterIndex);
-            X.erase(0, X.find_first_not_of(' '));
-            X.erase(X.find_last_not_of(' ') + 1);
-            string rightProduction = production.substr(
-                    delimiterIndex + 2,
-                    production.length() - delimiterIndex - 2);
-            Yset = splitRHSOfProduction(rightProduction);
 
-            int sizeOfYset = Yset.size();
-            nullable["null"] = true;
-            if (allNullable(Yset, 0, sizeOfYset - 1))
-                nullable[X] = true;
+void GrammarAnalyzer::calculateFIRSTAndFOLLOWSets() {
+    for (auto const &i: VtToIndexMap) {
+        string Vt = i.first;
+        int VtIndex = i.second;
+        // 对于终结符：FIRST集合即为自己
+        FIRST[VtIndex].insert(Vt);
+    }
+    for (const auto &production: productionTable) {
+        string X;
+        vector<string> Yset;
+        int delimiterIndex = production.find("->");
+        X = production.substr(0, delimiterIndex);
+        X.erase(0, X.find_first_not_of(' '));
+        X.erase(X.find_last_not_of(' ') + 1);
+        string rightProduction = production.substr(
+                delimiterIndex + 2,
+                production.length() - delimiterIndex - 2);
+        Yset = splitRHSOfProduction(rightProduction);
 
-            for (int i = 0; i < sizeOfYset; ++i) {
+        int sizeOfYset = Yset.size();
+        nullable["null"] = true;
+        if (allNullable(Yset, 0, sizeOfYset - 1))
+            nullable[X] = true;
 
-                // ① 如果前i-1个符号都可空而Yi不可空，则将FIRST(Yi)集合加入FIRST(X)中
-                if ((!nullable[Yset[i]]) && allNullable(Yset, 0, i - 1)) {
-                    if (i <= sizeOfYset - 1) {
-                        set<string> FIRSTSetOfX = FIRST[VnToIndexMap[X]];
-                        // 判断Yi是否是终结符 => 按符号表中索引获取FIRST集合
-                        set<string> FIRSTSetOfYi =
-                                VtToIndexMap.count(Yset[i]) != 0 ?
-                                FIRST[VtToIndexMap[Yset[i]]] : FIRST[VnToIndexMap[Yset[i]]];
-                        // 取并集操作
-                        std::set_union(FIRSTSetOfX.begin(), FIRSTSetOfX.end(),
-                                       FIRSTSetOfYi.begin(), FIRSTSetOfYi.end(),
-                                       std::inserter(FIRSTSetOfX, FIRSTSetOfX.begin()));
-                        // 更新X的FIRST集合
-                        FIRST[VnToIndexMap[X]] = FIRSTSetOfX;
-                    }
+        for (int i = 0; i < sizeOfYset; ++i) {
+
+            // ① 如果前i-1个符号都可空而Yi不可空，则将FIRST(Yi)集合加入FIRST(X)中
+            if ((!nullable[Yset[i]]) && allNullable(Yset, 0, i - 1)) {
+                if (i <= sizeOfYset - 1) {
+                    set<string> FIRSTSetOfX = FIRST[VnToIndexMap[X]];
+                    // 判断Yi是否是终结符 => 按符号表中索引获取FIRST集合
+                    set<string> FIRSTSetOfYi =
+                            VtToIndexMap.count(Yset[i]) != 0 ?
+                            FIRST[VtToIndexMap[Yset[i]]] : FIRST[VnToIndexMap[Yset[i]]];
+                    // 取并集操作
+                    std::set_union(FIRSTSetOfX.begin(), FIRSTSetOfX.end(),
+                                   FIRSTSetOfYi.begin(), FIRSTSetOfYi.end(),
+                                   std::inserter(FIRSTSetOfX, FIRSTSetOfX.begin()));
+                    // 更新X的FIRST集合
+                    FIRST[VnToIndexMap[X]] = FIRSTSetOfX;
                 }
+            }
 
-                // ② 如果Y(i+1)到Y(sizeOfYset-1)都是可空的而Yi之前的不可空，则将FOLLOW(X)加入FOLLOW(Yi)中
-                if (allNullable(Yset, i + 1, sizeOfYset - 1)) {
-                    set<string> FOLLOWSetOfX = FOLLOW[VnToIndexMap[X]];
+            // ② 如果Y(i+1)到Y(sizeOfYset-1)都是可空的而Yi之前的不可空，则将FOLLOW(X)加入FOLLOW(Yi)中
+            if (allNullable(Yset, i + 1, sizeOfYset - 1)) {
+                set<string> FOLLOWSetOfX = FOLLOW[VnToIndexMap[X]];
+                set<string> FOLLOWSetOfYi =
+                        VtToIndexMap.count(Yset[i]) ?
+                        FOLLOW[VtToIndexMap[Yset[i]]] : FOLLOW[VnToIndexMap[Yset[i]]];
+                std::set_union(FOLLOWSetOfX.begin(), FOLLOWSetOfX.end(),
+                               FOLLOWSetOfYi.begin(), FOLLOWSetOfYi.end(),
+                               std::inserter(FOLLOWSetOfYi, FOLLOWSetOfYi.begin()));
+                VtToIndexMap.count(Yset[i]) ?
+                FOLLOW[VtToIndexMap[Yset[i]]] : FOLLOW[VnToIndexMap[Yset[i]]]
+                                                        = FOLLOWSetOfYi;
+            }
+
+            for (int j = i + 1; j < sizeOfYset; ++j) {
+                // ③ 如果Y(i+1)到Y(j-1)都可推导为空字，则将FIRST(Yj)加入FOLLOW(Yi)中
+                if ((!nullable[Yset[j]]) && allNullable(Yset, i + 1, j - 1) && j <= sizeOfYset - 1) {
                     set<string> FOLLOWSetOfYi =
                             VtToIndexMap.count(Yset[i]) ?
                             FOLLOW[VtToIndexMap[Yset[i]]] : FOLLOW[VnToIndexMap[Yset[i]]];
-                    std::set_union(FOLLOWSetOfX.begin(), FOLLOWSetOfX.end(),
-                                   FOLLOWSetOfYi.begin(), FOLLOWSetOfYi.end(),
+                    set<string> FIRSTSetOfYj =
+                            VtToIndexMap.count(Yset[j]) ?
+                            FIRST[VtToIndexMap[Yset[j]]] : FIRST[VnToIndexMap[Yset[j]]];
+                    std::set_union(FOLLOWSetOfYi.begin(), FOLLOWSetOfYi.end(),
+                                   FIRSTSetOfYj.begin(), FIRSTSetOfYj.end(),
                                    std::inserter(FOLLOWSetOfYi, FOLLOWSetOfYi.begin()));
+
                     VtToIndexMap.count(Yset[i]) ?
                     FOLLOW[VtToIndexMap[Yset[i]]] : FOLLOW[VnToIndexMap[Yset[i]]]
                                                             = FOLLOWSetOfYi;
                 }
-
-                for (int j = i + 1; j < sizeOfYset; ++j) {
-                    // ③ 如果Y(i+1)到Y(j-1)都可推导为空字，则将FIRST(Yj)加入FOLLOW(Yi)中
-                    if ((!nullable[Yset[j]]) && allNullable(Yset, i + 1, j - 1) && j <= sizeOfYset - 1) {
-                        set<string> FOLLOWSetOfYi =
-                                VtToIndexMap.count(Yset[i]) ?
-                                FOLLOW[VtToIndexMap[Yset[i]]] : FOLLOW[VnToIndexMap[Yset[i]]];
-                        set<string> FIRSTSetOfYj =
-                                VtToIndexMap.count(Yset[j]) ?
-                                FIRST[VtToIndexMap[Yset[j]]] : FIRST[VnToIndexMap[Yset[j]]];
-                        std::set_union(FOLLOWSetOfYi.begin(), FOLLOWSetOfYi.end(),
-                                       FIRSTSetOfYj.begin(), FIRSTSetOfYj.end(),
-                                       std::inserter(FOLLOWSetOfYi, FOLLOWSetOfYi.begin()));
-
-                        VtToIndexMap.count(Yset[i]) ?
-                        FOLLOW[VtToIndexMap[Yset[i]]] : FOLLOW[VnToIndexMap[Yset[i]]]
-                                                                = FOLLOWSetOfYi;
-                    }
-                }
             }
         }
     }
+}
 
-    void GrammarAnalyzer::calculateFinalFIRSTAndFOLLOWSets() {
-        set<string> previousFIRST[60];
-        set<string> previousFOLLOW[60];
-        // FIRST集合和FOLLOW集合是否已收敛（不再变化）？
-        bool isConverged = true;
-        string startSign = getVn(productionTable[0]);
 
-        // 开始符号的FOLLOW集合插入'#'符
-        FOLLOW[VnToIndexMap[startSign]].insert("#");
+void GrammarAnalyzer::calculateFinalFIRSTAndFOLLOWSets() {
+    set<string> previousFIRST[60];
+    set<string> previousFOLLOW[60];
+    // FIRST集合和FOLLOW集合是否已收敛（不再变化）？
+    bool isConverged = true;
+    string startSign = getVn(productionTable[0]);
 
-        int cycleIndex = 1;
-        do {
-            isConverged = true;
-            calculateFIRSTAndFOLLOWSets();
+    // 开始符号的FOLLOW集合插入'#'符
+    FOLLOW[VnToIndexMap[startSign]].insert("#");
 
-            for (auto const &vn: VnToIndexMap) {
-                int index = vn.second;
-                // 若非终结符的FIRST集合或FOLLOW集合发生变化，则还要进行一次循环
-                if (previousFIRST[index].size() != FIRST[index].size()
-                    || previousFOLLOW[index].size() != FOLLOW[index].size())
-                    isConverged = false;
-                previousFIRST[index] = FIRST[index];
-                previousFOLLOW[index] = FOLLOW[index];
-            }
-        } while (!isConverged);
+    int cycleIndex = 1;
+    do {
+        isConverged = true;
+        calculateFIRSTAndFOLLOWSets();
 
-        //控制台输出一下结果
-//    cout << endl;
         for (auto const &vn: VnToIndexMap) {
             int index = vn.second;
+            // 若非终结符的FIRST集合或FOLLOW集合发生变化，则还要进行一次循环
             if (previousFIRST[index].size() != FIRST[index].size()
                 || previousFOLLOW[index].size() != FOLLOW[index].size())
                 isConverged = false;
-
+            previousFIRST[index] = FIRST[index];
+            previousFOLLOW[index] = FOLLOW[index];
         }
+    } while (!isConverged);
+
+    //控制台输出一下结果
+//    cout << endl;
+    for (auto const &vn: VnToIndexMap) {
+        int index = vn.second;
+        if (previousFIRST[index].size() != FIRST[index].size()
+            || previousFOLLOW[index].size() != FOLLOW[index].size())
+            isConverged = false;
+
     }
+}
 
 
 #endif //INTERMEDIATE_CODE_GENERATOR_GRAMMARANALYZER_H
