@@ -14,34 +14,42 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+// 小写字母
 static bool isSmallLetter(char c) {
     return c >= 'a' && c <= 'z';
 }
 
+// 大写字母
 static bool isCapitalLetter(char c) {
     return c >= 'A' && c <= 'Z';
 }
 
+// 字母
 static bool isLetter(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
+// 数字
 static bool isDigit(char c) {
     return c >= '0' && c <= '9';
 }
 
+// 下划线
 static bool isUnderline(char c) {
     return c == '_';
 }
 
+// 小数点
 static bool isDecimalPoint(char c) {
     return c == '.';
 }
 
+// 空格
 static bool isBlank(char c) {
     return c == ' ';
 }
 
+// 一个合法字
 class Word {
 public:
     int indexInKeywords{};
@@ -62,8 +70,6 @@ vector<int> locateInputCode;
 
 class Tokenizer {
 public:
-    int _length;
-    vector<int> locationOfBinaryTermInInputFile;
 
     // 分析关键字/用户定义变量
     static Word wordAnalyze(const string& subCode);
@@ -93,7 +99,8 @@ Word Tokenizer::wordAnalyze(const string &subCode) {
                 word.indexInKeywords = VARIABLE;
                 keywords[word.indexInKeywords] = subCode.substr(0, i);
                 break;
-            } else if ((isLetter(subCode[i]) || isDigit(subCode[i]) || isUnderline(subCode[i])) && i == subCode.length() - 1) {
+            } else if ((isLetter(subCode[i]) || isDigit(subCode[i])
+            || isUnderline(subCode[i])) && i == subCode.length() - 1) {
                 word.indexInKeywords = VARIABLE;
                 keywords[word.indexInKeywords] = subCode.substr(0, subCode.length());
                 break;
@@ -214,10 +221,8 @@ Word Tokenizer::characterAnalyze(const string &subCode) {
 }
 
 void Tokenizer::lexicalAnalyze(const string &code) {
-    int length = code.length();
     for (int i = 0; i < code.length(); ++i) {
         Word word;
-//        cout << "isLetter:" << isLetter(code[i]) << "isDigit:" << isDigit(code[i]) << "isBlank:" << isBlank(code[i]) << endl;
         if (isLetter(code[i]))
             word = wordAnalyze(code.substr(i, code.length() - i + 1));
         else if (isDigit(code[i]))
@@ -228,9 +233,9 @@ void Tokenizer::lexicalAnalyze(const string &code) {
             word = characterAnalyze(code.substr(i, code.length() - i + 1));
 
         i += int(word.token.length()) - 1;
+        // 词法分析表加入该词
         lexicalTable.emplace_back(word);
         ++lexicalTableLength;
-//        cout << "(" << word.indexInKeywords << ", " << word.token << ")" << endl;
     }
 }
 
