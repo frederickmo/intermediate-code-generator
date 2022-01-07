@@ -1,1 +1,3 @@
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.0.sdk -mmacosx-version-min=11.6 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/intermediate_code_generator.dir/main.cpp.o -o intermediate_code_generator 
+"E:\CLion 2021.2\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\intermediate_code_generator.dir/objects.a
+E:\mingw-w64\mingw32\bin\ar.exe cr CMakeFiles\intermediate_code_generator.dir/objects.a @CMakeFiles\intermediate_code_generator.dir\objects1.rsp
+E:\mingw-w64\mingw32\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\intermediate_code_generator.dir/objects.a -Wl,--no-whole-archive -o intermediate_code_generator.exe -Wl,--out-implib,libintermediate_code_generator.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\intermediate_code_generator.dir\linklibs.rsp

@@ -8,97 +8,97 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug"/>
+				<Option working_dir="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rebuild_cache">
-				<Option working_dir="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="edit_cache">
-				<Option working_dir="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="intermediate_code_generator">
-				<Option output="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/intermediate_code_generator" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug"/>
+				<Option output="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/intermediate_code_generator.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include"/>
-					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
-					<Add directory="/System/Library/Frameworks"/>
-					<Add directory="/Library/Frameworks"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/i686-w64-mingw32"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/backward"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include-fixed"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 intermediate_code_generator"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 intermediate_code_generator"/>
+					<CompileFile command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="intermediate_code_generator/fast">
-				<Option output="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/intermediate_code_generator" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug"/>
+				<Option output="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/intermediate_code_generator.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.0.0/include"/>
-					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
-					<Add directory="/System/Library/Frameworks"/>
-					<Add directory="/Library/Frameworks"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/i686-w64-mingw32"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include/c++/backward"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/include-fixed"/>
+					<Add directory="E:/mingw-w64/mingw32/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 intermediate_code_generator/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 intermediate_code_generator/fast"/>
+					<CompileFile command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="E:/mingw-w64/mingw32/bin/mingw32-make.exe -f &quot;C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/GrammarAnalyzer.h">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/GrammarAnalyzer.h">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Keywords.h">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Keywords.h">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleTranslator.h">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/SemanticAnalyzer.h">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/SemanticAnalyzer.h">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Tokenizer.h">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Tokenizer.h">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/main.cpp">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/main.cpp">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
-		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/CMakeLists.txt">
+		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

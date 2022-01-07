@@ -1,3 +1,3 @@
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug/CMakeFiles/intermediate_code_generator.dir
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/CMakeFiles/intermediate_code_generator.dir
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug/CMakeFiles/rebuild_cache.dir

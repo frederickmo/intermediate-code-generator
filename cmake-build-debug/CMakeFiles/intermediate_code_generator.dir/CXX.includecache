@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/GrammarAnalyzer.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/GrammarAnalyzer.h
 Tokenizer.h
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Tokenizer.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Tokenizer.h
 map
 -
 set
@@ -16,21 +16,21 @@ set
 algorithm
 -
 
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Keywords.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Keywords.h
 vector
 -
 string
 -
 
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleTranslator.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h
 utility
 -
 stack
 -
 SemanticAnalyzer.h
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/SemanticAnalyzer.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/SemanticAnalyzer.h
 
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/SemanticAnalyzer.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/SemanticAnalyzer.h
 utility
 -
 queue
@@ -40,17 +40,17 @@ fstream
 sstream
 -
 GrammarAnalyzer.h
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/GrammarAnalyzer.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/GrammarAnalyzer.h
 
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Tokenizer.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Tokenizer.h
 Keywords.h
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/Keywords.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Keywords.h
 vector
 -
 iostream
 -
 
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/main.cpp
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/main.cpp
 QuadrupleTranslator.h
-/Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleTranslator.h
+C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h
 
