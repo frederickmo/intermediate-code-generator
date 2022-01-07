@@ -4,7 +4,7 @@
 CMakeFiles/intermediate_code_generator.dir/main.cpp.obj: \
  ../GrammarAnalyzer.h \
  ../Keywords.h \
- ../QuadrupleTranslator.h \
+ ../QuadrupleGenerator.h \
  ../SemanticAnalyzer.h \
  ../Tokenizer.h \
  ../main.cpp

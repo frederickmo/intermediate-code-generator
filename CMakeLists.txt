@@ -3,4 +3,4 @@ project(intermediate_code_generator)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(intermediate_code_generator main.cpp Tokenizer.h Keywords.h GrammarAnalyzer.h SemanticAnalyzer.h QuadrupleTranslator.h)
+add_executable(intermediate_code_generator main.cpp Tokenizer.h Keywords.h GrammarAnalyzer.h SemanticAnalyzer.h QuadrupleGenerator.h)

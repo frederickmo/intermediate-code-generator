@@ -425,9 +425,17 @@ void SemanticAnalyzer::generateStateSet(int choice) {
                         // LR(1)分析法 => 归约项后面出现展望符才进行规约
                         for (auto & k : tmpTerm.subsequence) {
                             // 不等于0 => 该位置已经被写入过了 => 有两个规约方式 => 规约-规约冲突
+<<<<<<< Updated upstream
                             if (ActionTable[curState][VtToIndex[k]] != 0)
                                 std::cerr << "(状态" << curState << "存在规约-规约冲突)" << endl;
                             ActionTable[curState][VtToIndex[k]] =
+=======
+
+//                            if (ActionTable[curState][VtToIndexMap[k]] != 0)
+//                                std::cerr << "(状态" << curState << "存在规约-规约冲突)" << endl;
+
+                            ActionTable[curState][VtToIndexMap[k]] =
+>>>>>>> Stashed changes
                                     REDUCE_BASE + productionIndex;
                         }
                     }
@@ -448,8 +456,13 @@ void SemanticAnalyzer::generateStateSet(int choice) {
         // 填充ACTION表移进项目
         if (VtToIndex.count(symbolStack.front()) != 0) {
             // 如果已经填充过了
+<<<<<<< Updated upstream
             if (ActionTable[curState][VtToIndex[symbolStack.front()]] != 0)
                 std::cerr << "(状态" << curState << "移进" << symbolStack.front() << "存在冲突)";
+=======
+//            if (ActionTable[curState][VtToIndexMap[symbolStack.front()]] != 0)
+//                std::cerr << "(状态" << curState << "移进" << symbolStack.front() << "存在冲突)";
+>>>>>>> Stashed changes
 
             ActionTable[curState][VtToIndex[symbolStack.front()]] = SHIFT_BASE + nextState;
         } else
@@ -483,7 +496,7 @@ void SemanticAnalyzer::generateStateSet(int choice) {
 }
 
 void SemanticAnalyzer::generateLALRTable() {
-    cout << "Generating LALR parsing table\n";
+//    cout << "Generating LALR parsing table\n";
     // 记录所有项目集是否已经被合并了
     bool merged[maxTermCount];
     // 初始化为全0
@@ -547,9 +560,9 @@ void SemanticAnalyzer::generateLALRTable() {
                         if (ActionTable[i][vt.second] == 0)
                             ActionTable[i][vt.second] = ActionTable[j][vt.second];
                         // 如果都是归约项目，但是归约动作不同
-                        else if (isReduceTerm(ActionTable[i][vt.second])
-                        && ActionTable[i][vt.second] != ActionTable[j][vt.second])
-                            std::cerr << "产生移进-归约冲突，文法不是LALR文法，请手动修改" << endl;
+//                        else if (isReduceTerm(ActionTable[i][vt.second])
+//                        && ActionTable[i][vt.second] != ActionTable[j][vt.second])
+//                            std::cerr << "产生移进-归约冲突，文法不是LALR文法，请手动修改" << endl;
                     }
                 }
 

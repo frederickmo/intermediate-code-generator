@@ -86,7 +86,11 @@
 		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/Keywords.h">
 			<Option target="intermediate_code_generator"/>
 		</Unit>
+<<<<<<< Updated upstream
 		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h">
+=======
+		<Unit filename="/Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleGenerator.h">
+>>>>>>> Stashed changes
 			<Option target="intermediate_code_generator"/>
 		</Unit>
 		<Unit filename="C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/SemanticAnalyzer.h">

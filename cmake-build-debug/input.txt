@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -10,3 +11,6 @@
 {l: a:=1; while b <= (c+(-d*5)) do if h=5 then goto l else call f(a, b)}
 
 >>>>>>> parent of 30ad1b1 (更新)
+=======
+{goto l; a:=a+b; l: a:=a+b}
+>>>>>>> Stashed changes

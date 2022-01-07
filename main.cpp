@@ -1,5 +1,5 @@
 
-#include "QuadrupleTranslator.h"
+#include "QuadrupleGenerator.h"
 
 int main() {
 
@@ -9,6 +9,7 @@ int main() {
     SemanticAnalyzer::generateStateSet();
     SemanticAnalyzer::generateLALRTable();
 
+<<<<<<< Updated upstream
     QuadrupleTranslator::lex();
     QuadrupleTranslator::parse();
 
@@ -29,6 +30,11 @@ int main() {
         ++address;
     }
 
+=======
+    QuadrupleGenerator::lex(false);
+    QuadrupleGenerator::parse(false);
+    QuadrupleGenerator::printQuadruples();
+>>>>>>> Stashed changes
 
     return 0;
 }

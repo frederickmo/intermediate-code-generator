@@ -22,7 +22,11 @@ vector
 string
 -
 
+<<<<<<< Updated upstream
 C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h
+=======
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleGenerator.h
+>>>>>>> Stashed changes
 utility
 -
 stack
@@ -50,7 +54,13 @@ vector
 iostream
 -
 
+<<<<<<< Updated upstream
 C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/main.cpp
 QuadrupleTranslator.h
 C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/QuadrupleTranslator.h
+=======
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/main.cpp
+QuadrupleGenerator.h
+/Users/frederickmo/Documents/GitHub/intermediate-code-generator/QuadrupleGenerator.h
+>>>>>>> Stashed changes
 
