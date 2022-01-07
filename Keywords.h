@@ -12,8 +12,8 @@ using std::vector;
 using std::string;
 
 #define CHARACTER_COUNT 31
-#define RESERVED_WORD_COUNT 11
-#define TOTAL_KEYWORD_COUNT 42
+#define RESERVED_WORD_COUNT 15
+#define TOTAL_KEYWORD_COUNT 46
 
 // 以下是变量的在关键字表里的位置
 #define VARIABLE 1
@@ -59,16 +59,20 @@ vector<string> keywords = {
         "else",
         "while",
         "do",
+        "for",
+        "true",
+        "false",
         "null",
         "and",
         "or",
         "not",
         "call",
         "goto",
+        "label"
 };
 
 const int characterCount = 31;
-const int reservedWordsCount = 11;
-const int totalKeywordsCount = 42;
+const int reservedWordsCount = 15;
+const int totalKeywordsCount = 46;
 
 #endif //INTERMEDIATE_CODE_GENERATOR_KEYWORDS_H

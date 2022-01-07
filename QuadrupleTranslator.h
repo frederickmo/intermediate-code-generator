@@ -380,9 +380,14 @@ void QuadrupleTranslator::parse() {
 
         // FIXME: 读空字存在问题：句末为空的时候如果ACTION表里能读空字会去读空字，目前的临时办法是句末带#符号，但这肯定不对，需要解决
         // FIXME:  是不是应该只有shift才读空字？
+<<<<<<< HEAD
 
         if (ActionTable[curState][VtToIndexMap["null"]] != ERROR &&
             !(lexicalTable[inputPointer].token == "#")) {
+=======
+        if (ActionTable[curState][VtToIndex["null"]] != ERROR &&
+        !(lexicalTable[inputPointer].token == "#")) {
+>>>>>>> parent of 30ad1b1 (更新)
             // 如果该状态一行可以读空字且下一个符号不是结束符#，则读入一个空字
             symbolToRead = "null";
         } else {
@@ -422,7 +427,7 @@ void QuadrupleTranslator::parse() {
          */
         // 变量或数字一起当做终结符i处理
         // 当前状态面临栈外输入串头部符号，ACTION表内的状态
-        int curSymbolIndex = ActionTable[curState][VtToIndexMap[symbolToRead]];
+        int curSymbolIndex = ActionTable[curState][VtToIndex[symbolToRead]];
 
         // 如果当前符号表位置为0(ERROR)，报错
         if (curSymbolIndex == ERROR) {
@@ -485,7 +490,7 @@ void QuadrupleTranslator::parse() {
                 curState = stateStack.top();
                 // 新状态进栈
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 symbolStack.top().place = topSymbol.place;
 //                symbolStack.top().name = topSymbol.name;
                 // TODO : TAG
@@ -509,7 +514,7 @@ void QuadrupleTranslator::parse() {
                 curState = stateStack.top();
                 // 新状态进栈
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
                 // 记录为该符号的入口地址
 
                 // valString记录的是终结符i的名字，名字为了在调试过程中能看懂归约到哪一步了所以保持<<ID>>不变
@@ -546,7 +551,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 这样就可以了吗？？
                 // semanicStack存储了变量名和各种终结符,直接读取栈顶的符号名应该就是符号吧?
@@ -572,7 +577,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 symbolStack.top().trueExit = booleanExpr.trueExit;
                 symbolStack.top().falseExit = booleanExpr.falseExit;
@@ -591,7 +596,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 symbolStack.top().trueExit = nextQuad - offset;
                 symbolStack.top().falseExit = nextQuad + 1 - offset;
@@ -621,7 +626,7 @@ void QuadrupleTranslator::parse() {
                  symbolStack.push(Symbol{reduceTerm.leftPart});
                  curState = stateStack.top();
                  stateStack.push(
-                         GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                         GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                  // 给出真假出口地址
                  symbolStack.top().trueExit = nextQuad - offset;
@@ -669,7 +674,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
 
                 // 原版的这里是终结符i, 这里是非终结符<<ID>>,看了下上面的i规约为<<ID>>的步骤，
@@ -720,7 +725,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 一个=赋所有属性
                 // FIXME:           感觉是不是这里有问题啊,S->A规约后符号栈里的S又变成A了?虽然能正常work但是不适合debug用
@@ -788,7 +793,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(newLeft);
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
 
                 generateDoubleArgThreeAddressCode(tempVar.name, reduceTerm.rightPart[1], expression1.valString,
@@ -820,7 +825,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(newLeft);
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
 //                string expr = "uminus " + expression.valString;
                 generateSingleArgThreeAddressCode(tempVar.name, "uminus", expression.valString, expression.isInteger);
@@ -843,7 +848,7 @@ void QuadrupleTranslator::parse() {
                 curState = stateStack.top();
 
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 symbolStack.top().place = expression.place;
 //                symbolStack.top().name = expression.name;
@@ -865,7 +870,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 布尔表达式，传递真假出口
                 symbolStack.top().trueExit = rightSymbol.trueExit;
@@ -896,7 +901,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 回填和合并链表
                 backPatch(booleanExpression.trueExit, M.quad);
@@ -934,7 +939,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 backPatch(booleanExpr.trueExit, M1.quad);
                 backPatch(booleanExpr.falseExit, M2.quad);
@@ -956,7 +961,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 接下来是对于M和N的两种不同处理
                 // quad记录的是经偏移后的真实地址，
@@ -994,7 +999,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 backPatch(L.nextList, M.quad);
                 L.nextList = statement.nextList;
@@ -1018,7 +1023,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 symbolStack.top().nextList = L.nextList;
 
@@ -1067,7 +1072,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
@@ -1086,7 +1091,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 // 调试用
                 cout << " => 规约后的新状态是 " << stateStack.top() << endl;
@@ -1104,7 +1109,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
 
                 int address = -1;
@@ -1162,7 +1167,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 //回填
                 backPatch(statement.nextList, M1.quad);
@@ -1188,7 +1193,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 Procedure function = procedureList.back();
                 function.name = id.valString;
@@ -1210,7 +1215,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 Procedure procedure;
                 procedure.parameters.push_back(expr.valString);
@@ -1232,7 +1237,7 @@ void QuadrupleTranslator::parse() {
                 symbolStack.push(Symbol{reduceTerm.leftPart});
                 curState = stateStack.top();
                 stateStack.push(
-                        GotoTable[curState][VnToIndexMap[symbolStack.top().name]]);
+                        GotoTable[curState][VnToIndex[symbolStack.top().name]]);
 
                 procedureList.back().parameters.push_back(expr.valString);
 
