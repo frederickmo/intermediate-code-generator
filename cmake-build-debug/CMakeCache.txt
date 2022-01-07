@@ -248,10 +248,10 @@ CMAKE_STRIP:FILEPATH=E:/mingw-w64/mingw32/bin/strip.exe
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Value Computed by CMake
-intermediate_code_generator_BINARY_DIR:STATIC=C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator/cmake-build-debug
+intermediate_code_generator_BINARY_DIR:STATIC=/Users/frederickmo/Documents/GitHub/intermediate-code-generator/cmake-build-debug
 
 //Value Computed by CMake
-intermediate_code_generator_SOURCE_DIR:STATIC=C:/Users/liruijie666/Documents/Testcode2/intermediate-code-generator
+intermediate_code_generator_SOURCE_DIR:STATIC=/Users/frederickmo/Documents/GitHub/intermediate-code-generator
 
 
 ########################

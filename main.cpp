@@ -16,7 +16,7 @@ int main() {
     int address = offset;
     for (const auto& quadruple : newQuadrupleList) {
         cout << "(" << address << ") ";
-        quadruple.printAsQuadruple();
+        quadruple.print();
         ++address;
     }
     cout << endl;
